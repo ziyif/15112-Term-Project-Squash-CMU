@@ -13,15 +13,11 @@
   </head>
 
   <body>
-
     <!-- The navigation bar -->
     <nav>
       <div class="nav-wrapper">
         <a href="#" class="brand-logo">Squash CMU</a>
         <ul id="nav-mobile" class="right hide-on-med-and-down">
-
-
-          <li><a href="/signup">Sign up</a></li>
           <li><a href="/partner">Find a Partner</a></li>
           <li><a href="/court">Find a Court</a></li>
           <li><a href="/ladder">Ladder</a></li>
@@ -30,9 +26,21 @@
     </nav>
 
 
+    <div class="container">
+      <div class="row" style="margin-top: 15rem">
+        <div class="col s3 offset-s2">
+          <a class="waves-effect waves-light btn-large">Super Match</a>
+        </div>
+        <div class="col s3 offset-s2">
+          <a class="waves-effect waves-light btn-large">Manual Match</a>
+        </div>
+      </div>
+      <h1>{{ greetings }} {{ name }}</h1>
+  </div>
 
 
-    <h1>{{ greetings }} {{ name }}</h1>
+
+
     <!--Import jQuery before materialize.js-->
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
