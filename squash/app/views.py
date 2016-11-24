@@ -1,12 +1,16 @@
 from django.shortcuts import render
 
+from django.http import Http404
 from django.http import HttpResponseRedirect
 
 from .forms import NameForm
 
+from .models import Player
+
 # Create your views here.
 
 def index(request):
+    players=Player.objects.all()
     context = {}
     context['greetings'] = "Hi! My name is"
     context['name'] = "Flora"
@@ -35,4 +39,19 @@ def signup(request):
     # if a GET (or any other method) we'll create a blank form
     else:
         return render(request,'app/signup.html', context)
+
+def profile(request,user_id):
+    player=Player.objects.get(pk=user_id)
+    context={
+
+        'player': player,
+    }
+
+    try: 
+        player=Player.objects.get(pk=user_id)
+    except Player.DoesNotExist:
+        raise Http404("Player does not exist")
+    return render (request, 'app/profile.html',context)
+
+
 
