@@ -88,6 +88,9 @@ class Player(models.Model):
 
     times=models.CharField(max_length=3,choices=Times_CHOICES,default="None")
 
+    def get_absolute_url(self):
+        return reverse('app:profile',kwargs={'pk':self.pk})
+        
     def __str__(self):
         return self.first_name + " "+ self.last_name
 
