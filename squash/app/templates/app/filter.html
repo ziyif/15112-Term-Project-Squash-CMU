@@ -1,6 +1,6 @@
 {% extends 'app/base.html' %}
 
-{% block title %}Sign up{% endblock %}
+{% block title %}Filter{% endblock %}
 
 {% block body %}
 
@@ -22,46 +22,8 @@
 
     <div class="container">
 <!--     <div class="section"><br><br><br><br><br></div> -->
-      <form class="col s12" method="POST" action="/signup" id="signup-form">
+      <form class="col s12" method="POST" action="/filter" id="filter-form">
         {% csrf_token %}
-
-        <div class="row">
-          <div class="input-field col s6">
-            <input placeholder="Placeholder" name="first_name" type="text" class="validate">
-            <label for="first_name">First Name</label>
-          </div>
-        </div>
-
-
-        <div class="row">
-          <div class="input-field col s6">
-            <input placeholder="Placeholder" name="last_name" type="text" class="validate">
-            <label for="last_name">Last Name</label>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="input-field col s6">
-            <input placeholder="Placeholder" name="andrew" type="text" class="validate">
-            <label for="andrew">Andrew ID</label>
-          </div>
-        </div>
-
-
-        <div class="row">
-          <div class="input-field col s6">
-            <input placeholder="Placeholder" name="phone" type="text" class="validate">
-            <label for="phone">Phone Number</label>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="input-field col s6">
-            <input placeholder="Placeholder" name="email" type="text" class="validate">
-            <label for="email">Email</label>
-          </div>
-        </div>
-
 
 
         <div class="row">
@@ -76,9 +38,26 @@
         </div>
 
 
+
         <div class="row">
           <div class="input-field col s6">
-            <select name='level'>
+            <select name='gender_importance'>
+              <option value="" disabled selected>Choose your option</option>
+              <option value=1>1</option>
+              <option value=2>2</option>
+              <option value=3>3</option>
+              <option value=4>4</option>
+              <option value=5>5</option>
+
+            </select>
+            <label>Gender Importance 1-5 </label>
+          </div>
+        </div>
+
+
+        <div class="row">
+          <div class="input-field col s6">
+            <select name='min_level'>
               <option value="" disabled selected>Choose your option</option>
               <option value=1.0>1.0</option>
               <option value=1.5>1.5</option>
@@ -92,7 +71,44 @@
               <option value=5.5>5.5</option>
               <option value=6.0>6.0</option>
             </select>
-            <label>Skill Level</label>
+            <label>Partner's Min Level</label>
+          </div>
+        </div>
+
+
+        <div class="row">
+          <div class="input-field col s6">
+            <select name='max_level'>
+              <option value="" disabled selected>Choose your option</option>
+              <option value=1.0>1.0</option>
+              <option value=1.5>1.5</option>
+              <option value=2.0>2.0</option>
+              <option value=2.5>2.5</option>
+              <option value=3.0>3.0</option>
+              <option value=3.5>3.5</option>
+              <option value=4.0>4.0</option>
+              <option value=4.5>4.5</option>
+              <option value=5.0>5.0</option>
+              <option value=5.5>5.5</option>
+              <option value=6.0>6.0</option>
+            </select>
+            <label>Partner's Max Level</label>
+          </div>
+        </div>
+
+
+        <div class="row">
+          <div class="input-field col s6">
+            <select name='level_importance'>
+              <option value="" disabled selected>Choose your option</option>
+              <option value=1>1</option>
+              <option value=2>2</option>
+              <option value=3>3</option>
+              <option value=4>4</option>
+              <option value=5>5</option>
+
+            </select>
+            <label>Level Importance 1-5 </label>
           </div>
         </div>
 
@@ -110,6 +126,22 @@
 
             </select>
             <label>How often do you prefer to play?</label>
+          </div>
+        </div>
+
+
+        <div class="row">
+          <div class="input-field col s6">
+            <select name='frequency_importance'>
+              <option value="" disabled selected>Choose your option</option>
+              <option value=1>1</option>
+              <option value=2>2</option>
+              <option value=3>3</option>
+              <option value=4>4</option>
+              <option value=5>5</option>
+
+            </select>
+            <label>Frequency Importance 1-5 </label>
           </div>
         </div>
 
@@ -138,9 +170,23 @@
               <option value="SUM">Sunday Morning</option>
               <option value="SUA">Sunday Afternoon</option>
               <option value="SUE">Sunday Evening</option>
-
             </select>
             <label>What are your preferred times to play?</label>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="input-field col s6">
+            <select name='times_importance'>
+              <option value="" disabled selected>Choose your option</option>
+              <option value=1>1</option>
+              <option value=2>2</option>
+              <option value=3>3</option>
+              <option value=4>4</option>
+              <option value=5>5</option>
+
+            </select>
+            <label>Preferred Times Importance 1-5 </label>
           </div>
         </div>
 
