@@ -1,0 +1,19 @@
+{% extends 'app/base.html' %}
+
+{% block title %}Match Result{% endblock %}
+
+{% block body %}
+  
+    
+    <ul>
+        {% for rank in partners %}
+            {% for player in partners[rank] %}
+                <li> {{'rank: '}}{{rank}}{{" "}}{{player.name}} {{"Common Times: "}}
+                    {{partners[rank][player][:-1]}} </li>
+                <li> {{'Match Score: '}}{{partners[rank][player][-1]}}</li>
+            {% endfor %}
+        {% endfor %}
+    </ul>
+
+
+{% endblock %}

@@ -1,11 +1,11 @@
 from django.db import models
 from django.forms import ModelForm
-from django.core.exceptions import NON_FIELD_ERRORS
+# from django.core.exceptions import NON_FIELD_ERRORS
 
 
 # from video do i need it?
 from django.core.urlresolvers import reverse
-
+import json
 
 
 class Player(models.Model):
@@ -97,7 +97,6 @@ class Player(models.Model):
         
     def __str__(self):
         return self.first_name + " "+ self.last_name
-
 
 
 class Requirements(models.Model):
@@ -197,98 +196,114 @@ class Requirements(models.Model):
     times_importance=models.IntegerField(choices=IMPORTANCE_CHOICES,null=True)
 
     
-#     def filter(self,allPlayers):
-#         jsonDec = json.decoder.JSONDecoder()
-#         timesList = jsonDec.decode(self.times)
-#         timesSet=set(tiemsList)
-#         requirements={
-#     'gender':self.gender,
-#     'min_level': self.min_level,
-#     'max_level': self.max_level,
-#     'timesPreferred':timesSet,
-#     'frequency': self.frequency,
-#     'importance': {
-#         'gender': 5,
-#         'time': 2
-#     }
-# }
+    def filter(self,allPlayers):
+        jsonDec = json.decoder.JSONDecoder()
+        timesList = jsonDec.decode(self.times)
+        timesSet=set(timesList)
+        requirements={
+                        'gender':self.gender,
+                        'min_level': eval(self.min_level),
+                        'max_level': eval(self.max_level),
+                        'timesPreferred':timesSet,
+                        'frequency': int(self.frequency),
+                        'importance': {
+                            'gender': int(self.gender_importance),
+                            'times': int(self.times_importance),
+                            'level': int(self.level_importance),
+                            'frequency': int(self.frequency_importance),
+                        }
+                    }
 
-# users={
-#     'Flora':{
-#         'name': 'flora'
-#         'gender':'F'
-#         'min_level': 1.0,
-#         'max_level': 2.0,
-#         'timesPreferred':{0,1,10}
-#         'frequency': 3,
-#     }
-#     "Alpha":
-#     "Beta":
-# }
+        result=dict()
+        for player in allPlayers:
+            # list 
+            
+            
+            importance=requirements['importance']  # dictionary
 
-# # requirements['im']['ge']
-# # [['F',(1.0,2.0),{0,1,10},3],[5,6,7,8]]
+            totalImportanceScore=0
 
-    
-# def filter(requirements,users):
-#     result=dict()
-#     for key in users:
-#         # list 
-#         userInfo=d[key]
-        
-#         importance=requirements['importance']  # dictionary
-
-#         totalImportanceScore=0
-
-#         for key in importance:
-#             totalImportanceScore+=importance[key]
+            for key in importance:
+                print(importance[key])
+                totalImportanceScore+=importance[key]
 
 
-#         # gender
-#         if userInfo['gender']==requirements['gender']:
-#             weightA=importance['gender']/totalImportanceScore
-#             scoreA= 1*weightA
-#         else:
-#             scoreA=0
+            # gender
+            if player.gender==requirements['gender']:
+                weightA=importance['gender']/totalImportanceScore
+                scoreA= 1*weightA
+            else:
+                scoreA=0
 
-#         # level
-#         userLevel=userInfo['level']
-#         min_level=requirements['min_level']
-#         max_level=requirements['max_level']
-#         weightB=importance['level']/totalImportanceScore
-#         if min_level<=userLevel<=max_level:
-#             scoreB= 1* weightB
-#         elif userLevel<min_level:
-#             scoreB=1*(1/3)**(min_level-userLevel)*weightB
-
-
-#         #timesPreferred
-#         requirementTime=requirements['timesPreferred']
-
-#         frequency=requirements['frequency']
-
-#         userTime=userInfo['timesPreferred']
-
-#         commonTimes=requirementTime.union(userTime)
-#         numOfCommonBlocks=len(commonTimes)
-#         weightC=importance['timesPreferred']/totalImportanceScore
-#         if numOfCommonBlocks>=frequency:
-#             scoreC=1*weightC
-#         else:
-#             scoreC=numOfCommonBlocks/frequency*weightC
+            # level
+            playerLevel=player.level
+            min_level=requirements['min_level']
+            max_level=requirements['max_level']
+            weightB=importance['level']/totalImportanceScore
+            if min_level<=playerLevel<=max_level:
+                scoreB= 1* weightB
+            elif playerLevel<min_level:
+                scoreB=1*(1/3)**(min_level-playerLevel)*weightB
 
 
-#         # frequency
-#         weightD=importance['frequency']/totalImportanceScore
-#         userFrequency=userInfo['frequency']
-#         scoreD=min(userFrequency,frequency)/max(userFrequency,frequency)*weightD
+            #timesPreferred
+            requirementTime=requirements['timesPreferred']
 
-#         totalScore=scoreA+scoreB+scoreC+scoreD
+            frequency=requirements['frequency']
 
-#         if totalScore> 0.7:
-#             result.append({key:d[key],'score':totalScore})
 
-#         return result
+            jsonDec = json.decoder.JSONDecoder()
+            playerTimesList = jsonDec.decode(player.times)
+            playerTimes=set(playerTimesList)
+
+            commonTimes=requirementTime.union(playerTimes)
+            numOfCommonBlocks=len(commonTimes)
+            weightC=importance['times']/totalImportanceScore
+            if numOfCommonBlocks>=frequency:
+                scoreC=1*weightC
+            else:
+                scoreC=numOfCommonBlocks/frequency*weightC
+
+
+            # frequency
+            weightD=importance['frequency']/totalImportanceScore
+            playerFrequency=player.frequency
+            scoreD=min(playerFrequency,frequency)/max(playerFrequency,frequency)*weightD
+
+            totalScore=scoreA+scoreB+scoreC+scoreD
+
+            if totalScore> 0.7:
+                if totalScore not in result:
+                    result[totalScore]={player:commonBlocks}
+                else:
+                    result[totalScore][player]=commonBlocks
+
+            return result
+
+    def rankByScore(self,allPlayers):
+        matchPlayers=self.filter(allPlayers)
+        scores=[]
+        for score in matchPlayers:
+            # playersWithScore=len(matchPlayers[score])
+            # for i in range(playersWithScore):
+            scores.append(score)
+        sortedScores=sorted(scores)
+        sortedScores=list(reversed(sortedScores))
+        rankedResult=dict()
+        curRank=0
+        for i in range(len(sortedScores)):
+            curRank+=1
+            score=sortedScores[i]
+            playersWithScore=matchPlayers[sortedScores[i]]
+            for player in playersWithScore:
+                playersWithScore[player].append(score)
+            rankedResult[curRank]=playersWithScore
+            curRangk+=(len(playersWithScore)-1)
+        return rankedResult
+
+
+            
+
 
 
 

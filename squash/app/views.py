@@ -82,10 +82,18 @@ def filter(request):
             req.frequency_importance=data['frequency_importance'][0]
             req.times=json.dumps(data['times'])
             req.times_importance=data['times_importance'][0]
-        
+
+
+
+            allPlayers=Player.objects.all()
+            partners=req.rankByScore(allPlayers)
+
+            context={
+                "partners": partners
+            }       
             req.save()
-            context['result'] = data['gender'][0]
-            return render(request,'app/filter.html', context)
+            # context['result'] = data['gender'][0]
+            return render(request,'app/match_result.html', context)
 
         else:
             context['result'] = 'error!!!!!'
@@ -95,7 +103,16 @@ def filter(request):
     else:
         return render(request,'app/filter.html', context)
 
+def match_result(request):
 
+    allPlayers=Player.objects.all()
+    partners=req.rankByScore(allPlayers)
+
+    context={
+        "partners": partners
+    }
+
+    return render(request,'app/match_result.html', context)
 
 
 def profile(request,user_id):
