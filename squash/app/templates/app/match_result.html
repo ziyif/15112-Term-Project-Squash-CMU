@@ -1,16 +1,22 @@
 {% extends 'app/base.html' %}
 
+{% load template_filter %}
+
 {% block title %}Match Result{% endblock %}
 
 {% block body %}
   
     
     <ul>
-        {% for rank in partners %}
-            {% for player in partners[rank] %}
-                <li> {{'rank: '}}{{rank}}{{" "}}{{player.name}} {{"Common Times: "}}
-                    {{partners[rank][player][:-1]}} </li>
-                <li> {{'Match Score: '}}{{partners[rank][player][-1]}}</li>
+        {% for rank, players in partners.items %}
+        {{rank}}
+            {% for player, playerInfo in players.items %}
+            hihi
+                <li> {{'rank: '}}{{rank}}{{" "}}{{player}} {{"Common Times: "}}
+
+                    {{playerInfo.commonTimes | times_in_week | join:","}} </li>
+                }
+                <li> {{'Match Score: '}}{{playerInfo.score}}</li>
             {% endfor %}
         {% endfor %}
     </ul>

@@ -93,7 +93,7 @@ class Player(models.Model):
     times=models.TextField()
 
     def get_absolute_url(self):
-        return reverse('app:profile',kwargs={'pk':self.pk})
+        return reverse('app.views.profile',kwargs={'pk':self.pk})
         
     def __str__(self):
         return self.first_name + " "+ self.last_name
@@ -187,8 +187,8 @@ class Requirements(models.Model):
         ('SA','Saturday Afternoon'),
         ('SN','Saturday Night'),
         ('SuM','Sunday Morning'),
-        ('SuA','Sunday Afternoon'),
-        ('SuN','Sunday Night'),
+        ('SUA','Sunday Afternoon'),
+        ('SUN','Sunday Night'),
 
     )
 
@@ -202,15 +202,15 @@ class Requirements(models.Model):
         timesSet=set(timesList)
         requirements={
                         'gender':self.gender,
-                        'min_level': eval(self.min_level),
-                        'max_level': eval(self.max_level),
+                        'min_level': self.min_level,
+                        'max_level': self.max_level,
                         'timesPreferred':timesSet,
-                        'frequency': int(self.frequency),
+                        'frequency': self.frequency,
                         'importance': {
-                            'gender': int(self.gender_importance),
-                            'times': int(self.times_importance),
-                            'level': int(self.level_importance),
-                            'frequency': int(self.frequency_importance),
+                            'gender': self.gender_importance,
+                            'times': self.times_importance,
+                            'level': self.level_importance,
+                            'frequency': self.frequency_importance,
                         }
                     }
 
@@ -224,7 +224,7 @@ class Requirements(models.Model):
             totalImportanceScore=0
 
             for key in importance:
-                print(importance[key])
+                
                 totalImportanceScore+=importance[key]
 
 
@@ -236,9 +236,10 @@ class Requirements(models.Model):
                 scoreA=0
 
             # level
-            playerLevel=player.level
-            min_level=requirements['min_level']
-            max_level=requirements['max_level']
+            # convert decimal to float
+            playerLevel=float(player.level)
+            min_level=float(requirements['min_level'])
+            max_level=float(requirements['max_level'])
             weightB=importance['level']/totalImportanceScore
             if min_level<=playerLevel<=max_level:
                 scoreB= 1* weightB
@@ -274,14 +275,16 @@ class Requirements(models.Model):
 
             if totalScore> 0.7:
                 if totalScore not in result:
-                    result[totalScore]={player:commonBlocks}
+                    result[totalScore]={player.first_name:{'player': player,'commonTimes': commonTimes,'score':totalScore}}
                 else:
-                    result[totalScore][player]=commonBlocks
+                    result[totalScore][player.first_name]={'player': player,'commonTimes': commonTimes,'score':totalScore}
 
             return result
 
     def rankByScore(self,allPlayers):
+        
         matchPlayers=self.filter(allPlayers)
+        print(matchPlayers)
         scores=[]
         for score in matchPlayers:
             # playersWithScore=len(matchPlayers[score])
@@ -294,11 +297,13 @@ class Requirements(models.Model):
         for i in range(len(sortedScores)):
             curRank+=1
             score=sortedScores[i]
-            playersWithScore=matchPlayers[sortedScores[i]]
-            for player in playersWithScore:
-                playersWithScore[player].append(score)
+            playersWithScore=matchPlayers[score]
+            # for player in playersWithScore:
+            #     print('here',playersWithScore[player])
+            #     playersWithScore[player].append(score)
             rankedResult[curRank]=playersWithScore
-            curRangk+=(len(playersWithScore)-1)
+            curRank+=(len(playersWithScore)-1)
+        print('rankedResult', rankedResult)
         return rankedResult
 
 
