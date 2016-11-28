@@ -1,28 +1,85 @@
 <!-- http://www.tangowithdjango.com/book/chapters/login.html -->
+{% extends 'app/base.html' %}
+{% block body %}
 
-{% block content %}
+<head>
+      <title>The Materialize Selects Example</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">      
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/css/materialize.min.css">
+      <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>           
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/js/materialize.min.js"></script> 
+    <script>
+         $(document).ready(function() {
+         $('select').material_select();
+      });
+      </script>
+   </head>
 
-<html>
+<!-- 
     <head>
-        <!-- Is anyone getting tired of repeatedly entering the header over and over?? -->
-        <title>Rango</title>
-    </head>
+        Is anyone getting tired of repeatedly entering the header over and over??
+        <title>Log In</title>
+    </head> -->
 
-    <body>
-        <h1>Login to Rango</h1>
+    <div class="container">
 
-        <form id="login_form" method="post" action="/login">
-            {% csrf_token %}
-            Username: <input type="text" name="username" value="" size="50" />
-            <br />
-            Password: <input type="password" name="password" value="" size="50" />
-            <br />
+    <head>Login to Squash CMU</head>
 
-            <input type="submit" value="submit" />
-        </form>
+        <div class="row"> <br/ br/> </div>
 
-    </body>
-</html>
+        
+
+        <form class="col s12" method="POST" action="/login" id="login-form">
+
+            <!-- <form id="login_form" method="post" action="/login"> -->
+
+
+
+                {% csrf_token %}
+
+
+
+                <div class="row">
+                    <div class="input-field col s6">
+                        <label for="username">Username</label>
+                        <input placeholder="Placeholder" name="username" type="text" class="validate">
+                        
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="input-field col s6">
+                        <label for="password">Password</label>
+                        <input placeholder="Placeholder" name="password" type="password" class="validate">
+                        
+                    </div>
+                </div>
+
+                <div class="row">
+                    <button class="btn waves-effect waves-light" type="submit" name="action">Submit
+                        <i class="material-icons right">send</i>
+                    </button>
+                </div>
+
+
+
+
+
+
+
+                <!-- Username: <input type="text" name="username" value="" size="50" />
+                <br />
+                Password: <input type="password" name="password" value="" size="50" />
+                <br />
+
+                <input type="submit" value="submit" /> -->
+            </form>
+
+        </div>
+
+
 
 
 

@@ -23,6 +23,7 @@
           <li><a href="/">Home</a></li>
           {% if login_status is None %}
           <li><a href="/login">Login</a></li>
+          <li><a href="/register">Register</a></li>
           {% endif %}
           <li><a href="/player-form">Player Form</a></li>
           {% if player_id != None %}
@@ -32,6 +33,12 @@
           <li><a href="/partner">Find a Partner</a></li>
           <li><a href="/court">Find a Court</a></li>
           <li><a href="/ladder">Ladder</a></li>
+          {% if login_status != None %}
+          <li><a href="/logout">Logout</a></li>
+          {% endif %}
+          
+      
+
         </ul>
       </div>
     </nav>

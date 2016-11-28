@@ -7,16 +7,19 @@
 {% block body %}
   
     <div class="container">
+        <p> We Found {{matchesFound}} Results </p>
         <ul>
             {% for rank, players in partners.items %}
-            {{rank}}
-                {% for player, playerInfo in players.items %}
-                hihi
-                    <li> {{'rank: '}}{{rank}}{{" "}}{{player}} {{"Common Times: "}}
+            
+                {% for playerKey, playerInfo in players.items %}
+                    <li> Rank: {{rank}}  Player Name:  {{playerKey}} {{playerInfo.player.last_name}}  </li>
+                    <li> Email: {{playerInfo.player.email}} </li>
+                    <li> Common Times:  
 
-                        {{playerInfo.commonTimes | times_in_week | join:","}} </li>
-                    }
+                        {{playerInfo.commonTimes | times_in_week | join:", "}} </li>
+                    
                     <li> {{'Match Score: '}}{{playerInfo.score}}</li>
+                    <br/>
                 {% endfor %}
             {% endfor %}
         </ul>

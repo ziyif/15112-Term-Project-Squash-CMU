@@ -2,7 +2,8 @@ from django.views import generic
 from django.views.generic import View, DetailView
 from django.shortcuts import render,redirect
 from django.contrib.auth import login as auth_login
-from django.contrib.auth import authenticate, logout
+from django.contrib.auth import logout as auth_logout
+from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from django.http import HttpResponseRedirect
@@ -19,6 +20,7 @@ import json
 # Create your views here.
 
 def index(request):
+    context={}
     players=Player.objects.all()
 
     if request.user.is_authenticated():
@@ -28,12 +30,20 @@ def index(request):
                         'login_status':request.user.username}
         except:
             context={}
-    context['greetings'] = "Hi! My name is"
-    context['name'] = "Flora"
+    context['greetings'] = "Hi! "
+    context['instructions'] = "Please log in to enjoy all features."
     return render(request, 'app/index.html', context)
 
 def partner(request):
-    context={'player_id': request.user.player.pk}
+    context={}
+    if request.user.is_authenticated():
+        try:
+
+            context = {'player_id' : request.user.player.pk,
+                        'login_status':request.user.username}
+        except:
+            context={}
+    # context={'player_id': request.user.player.pk}
 
     return render(request,'app/partner.html', context)
 
@@ -78,7 +88,7 @@ def signup(request):
             # return render(request,'app/profile.html', context)
 
         else:
-            context['result'] = 'error!!!!!'
+            context['result'] = 'Plase make sure you fill in the form correctly.'
         return render(request,'app/signup.html', context)
 
     # if a GET (or any other method) we'll create a blank form
@@ -86,8 +96,16 @@ def signup(request):
         return render(request,'app/signup.html', context)
 
 def updateProfile(request):
+    context={}
+    if request.user.is_authenticated():
+        try:
 
-    context={'player_id':request.user.player.id}
+            context = {'player_id' : request.user.player.pk,
+                        'login_status':request.user.username}
+        except:
+            context={}
+
+    # context={'player_id':request.user.player.id}
     if request.method == 'POST':
         data = dict(request.POST)
         # create a form instance and populate it with data from the request:
@@ -132,16 +150,34 @@ def updateProfile(request):
     return render(request,'app/updateProfile.html', context)
 
 def filter(request):
+    context={}
     # def processForm(data):
     #     if (data.get('times')) is not None:
     #         data.times = repr(data['times'])
-    context= {'player_id': request.user.player.pk}
+    if request.user.is_authenticated():
+        try:
+
+            context = {'player_id' : request.user.player.pk,
+                        'login_status':request.user.username}
+        except:
+            context={}
+    # context= {'player_id': request.user.player.pk}
     return render(request,'app/filter.html', context)
 
     
 def match_result(request):
+    context={}
+    curPlayer=None
+    if request.user.is_authenticated():
+        try:
 
-    context={'result':""}
+            context = {'player_id' : request.user.player.pk,
+                        'login_status':request.user.username}
+            curPlayer=request.user.player
+        except:
+            context={}
+
+    context['result']=None
     # if this is a POST request we need to process the form data
     if request.method == 'POST':
         data = dict(request.POST)
@@ -179,19 +215,18 @@ def match_result(request):
 
 
             allPlayers=Player.objects.all()
-            partners=req.rankByScore(allPlayers)
+            matchesFound,partners=req.rankByScore(allPlayers,curPlayer)
+            context['matchesFound']=matchesFound
+            context['partners']=partners
+           
 
-            context={
-                'player_id': request.user.player.pk,
-                "partners": partners
-            }       
             req.save()
             # context['result'] = data['gender'][0]
             
             return render(request,'app/match_result.html', context)
 
         else:
-            context['result'] = 'error!!!!!'
+            context['result'] = 'Please make sure you fill in the form correctly.'
         # fix this
         return render(request,'app/filter.html', context)
 
@@ -214,17 +249,25 @@ def match_result(request):
 # youtube
 
 def profile(request,player_id):
+    context={}
+    if request.user.is_authenticated():
+        try:
+            print('haha')
+
+            context = {'login_status':request.user.username}
+
+        except:
+            print('didnt work')
+            context={}
 
     try:
         
         player=Player.objects.get(pk=player_id)
-        context={
+        context['player']=player
+        context['player_id']=request.user.player.pk
 
-        'player': player,
-        'player_id': request.user.player.pk,
-        }
         
-        print(context)
+        
 
     except Player.DoesNotExist:
         raise Http404("Player does not exist")
@@ -277,7 +320,7 @@ class UserFormView(View):
 
 # from django documentation
 def login(request):
-    print("jhhhhh")
+    
     context={'result':None}
     username = request.POST.get('username')
     password = request.POST.get('password')
@@ -297,6 +340,6 @@ def login(request):
     return render(request, 'app/login.html', context)
 
 def logout(request):
-    logout(request)
-    context={'login_status': "You are not logged in."}
-    return render(request, 'app/index.html', context)
+    auth_logout(request)
+    return redirect('index')
+    # return render(request, 'app/logout.html', context)

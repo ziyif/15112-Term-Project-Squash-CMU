@@ -230,7 +230,8 @@ class Requirements(models.Model):
     times_importance=models.IntegerField(choices=IMPORTANCE_CHOICES,null=True)
 
     
-    def filter(self,allPlayers):
+    def filter(self,allPlayers,curPlayer=None):
+        
         jsonDec = json.decoder.JSONDecoder()
         timesList = jsonDec.decode(self.times)
         timesSet=set(timesList)
@@ -249,6 +250,7 @@ class Requirements(models.Model):
                     }
 
         result=dict()
+        numOfMathces=0
         for player in allPlayers:
             # list 
             
@@ -305,20 +307,26 @@ class Requirements(models.Model):
             playerFrequency=player.frequency
             scoreD=min(playerFrequency,frequency)/max(playerFrequency,frequency)*weightD
 
-            totalScore=scoreA+scoreB+scoreC+scoreD
+            scale=100
+            totalScore=(scoreA+scoreB+scoreC+scoreD)*scale
+            totalScore= float("{0:.2f}".format(totalScore))
 
-            if totalScore> 0.7:
+            
+
+            goodScore=70
+            if totalScore> goodScore and (player != curPlayer):
+                numOfMathces+=1
                 if totalScore not in result:
                     result[totalScore]={player.first_name:{'player': player,'commonTimes': commonTimes,'score':totalScore}}
                 else:
                     result[totalScore][player.first_name]={'player': player,'commonTimes': commonTimes,'score':totalScore}
+        # tuple: ( number of player found, dictionary with players )
+        return (numOfMathces,result)
 
-            return result
-
-    def rankByScore(self,allPlayers):
+    def rankByScore(self,allPlayers,curPlayer=None):
         
-        matchPlayers=self.filter(allPlayers)
-        print(matchPlayers)
+        numOfMatches,matchPlayers=self.filter(allPlayers,curPlayer)
+        
         scores=[]
         for score in matchPlayers:
             # playersWithScore=len(matchPlayers[score])
@@ -338,7 +346,7 @@ class Requirements(models.Model):
             rankedResult[curRank]=playersWithScore
             curRank+=(len(playersWithScore)-1)
         print('rankedResult', rankedResult)
-        return rankedResult
+        return (numOfMatches, rankedResult)
 
 
             

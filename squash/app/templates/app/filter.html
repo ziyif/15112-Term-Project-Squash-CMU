@@ -21,6 +21,7 @@
    </head>
 
     <div class="container">
+      <p> {{result}} </p>
 <!--     <div class="section"><br><br><br><br><br></div> -->
       <form class="col s12" method="POST" action="/match_result" id="filter-form">
         {% csrf_token %}
@@ -296,7 +297,7 @@
           </button>
         </div>
       </form>
-      <p>{{ result }}</p>
+      
     </div>
 
 
