@@ -6,20 +6,21 @@
 
 {% block body %}
   
-    
-    <ul>
-        {% for rank, players in partners.items %}
-        {{rank}}
-            {% for player, playerInfo in players.items %}
-            hihi
-                <li> {{'rank: '}}{{rank}}{{" "}}{{player}} {{"Common Times: "}}
+    <div class="container">
+        <ul>
+            {% for rank, players in partners.items %}
+            {{rank}}
+                {% for player, playerInfo in players.items %}
+                hihi
+                    <li> {{'rank: '}}{{rank}}{{" "}}{{player}} {{"Common Times: "}}
 
-                    {{playerInfo.commonTimes | times_in_week | join:","}} </li>
-                }
-                <li> {{'Match Score: '}}{{playerInfo.score}}</li>
+                        {{playerInfo.commonTimes | times_in_week | join:","}} </li>
+                    }
+                    <li> {{'Match Score: '}}{{playerInfo.score}}</li>
+                {% endfor %}
             {% endfor %}
-        {% endfor %}
-    </ul>
+        </ul>
+    </div>
 
 
 {% endblock %}
