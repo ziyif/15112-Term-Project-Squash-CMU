@@ -1,14 +1,27 @@
 from django.db import models
 from django.forms import ModelForm
+from django.contrib.auth.models import User
 # from django.core.exceptions import NON_FIELD_ERRORS
-
+from django.contrib.auth.models import (
+    BaseUserManager, AbstractBaseUser
+)
 
 # from video do i need it?
 from django.core.urlresolvers import reverse
 import json
 
 
+#######
+from django.db import models
+from django.conf import settings
+from django.db.models.signals import post_save
+from django.contrib.auth.models import User
+from registration.signals import user_registered
+
+
 class Player(models.Model):
+    user=models.OneToOneField(User,on_delete=models.CASCADE,null=True)
+
     andrew=models.CharField(max_length=10)
     first_name=models.CharField(max_length=30,default='None')
     last_name=models.CharField(max_length=30,default='None')
@@ -68,25 +81,25 @@ class Player(models.Model):
     TIMES_CHOICES=(
         ('MM','Monday Morning'),
         ('MA','Monday Afternoon'),
-        ('MN','Monday Night'),
+        ('ME','Monday Evening'),
         ('TM','Tuesday Morning'),
         ('TA','Tuesday Afternoon'),
-        ('TN','Tuesday Night'),
+        ('TE','Tuesday Evening'),
         ('WM','Wednesday Morning'),
         ('WA','Wednesday Afternoon'),
-        ('WN','Wednesday Night'),
+        ('WE','Wednesday Evening'),
         ('TrM','Thursday Morning'),
         ('TrA','Thursday Afternoon'),
-        ('TrN','Thursday Night'),
+        ('TrE','Thursday Evening'),
         ('FM','Friday Morning'),
         ('FA','Friday Afternoon'),
-        ('FN','Friday Night'),
+        ('FE','Friday Evening'),
         ('SM','Saturday Morning'),
         ('SA','Saturday Afternoon'),
-        ('SN','Saturday Night'),
-        ('SuM','Sunday Morning'),
-        ('SuA','Sunday Afternoon'),
-        ('SuN','Sunday Night'),
+        ('SE','Saturday Evening'),
+        ('SUM','Sunday Morning'),
+        ('SUA','Sunday Afternoon'),
+        ('SUN','Sunday Evening'),
 
     )
 
@@ -97,6 +110,27 @@ class Player(models.Model):
         
     def __str__(self):
         return self.first_name + " "+ self.last_name
+
+    def assure_user_profile_exists(pk):
+        """
+        Creates a user profile if a User exists, but the
+        profile does not exist.  Use this in views or other
+        places where you don't have the user object but have the pk.
+        """
+        user = User.objects.get(pk=pk)
+        try:
+        # fails if it doesn't exist
+            userprofile = user.player
+        except Player.DoesNotExist:
+            userprofile = Player(user=user)
+            userprofile.save()
+        return
+
+
+    def create_user_profile(**kwargs):
+        UserProfile.objects.get_or_create(user=kwargs['user'])
+
+    user_registered.connect(create_user_profile)
 
 
 class Requirements(models.Model):
@@ -308,9 +342,6 @@ class Requirements(models.Model):
 
 
             
-
-
-
 
 
 

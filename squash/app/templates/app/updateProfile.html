@@ -1,5 +1,6 @@
+{% extends 'app/base.html' %}
 
-{% block title %}Sign up{% endblock %}
+{% block title %}Update Profile{% endblock %}
 
 {% block body %}
 
@@ -19,9 +20,12 @@
       </script>
    </head>
 
+    
+
     <div class="container">
-<!--     <div class="section"><br><br><br><br><br></div> -->
-      <form class="col s12" method="POST" action="/signup" id="signup-form">
+      <head>Update Your Profile</head>
+      <p> {{result}} </p>
+      <form class="col s12" method="POST" action="/update" id="edit-profile-form">
         {% csrf_token %}
 
         <div class="row">
@@ -249,7 +253,7 @@
           </button>
         </div>
       </form>
-      <p>{{ result }}</p>
+      
     </div>
 
 

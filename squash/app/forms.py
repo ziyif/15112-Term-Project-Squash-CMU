@@ -1,5 +1,7 @@
+from django.contrib.auth.models import User
 from django import forms
 from .models import Player
+
 
 GENDER_CHOICES=(
         ('M','Male'),
@@ -26,25 +28,25 @@ LEVEL_CHOICES=(
 TIMES_CHOICES=(
         ('MM','Monday Morning'),
         ('MA','Monday Afternoon'),
-        ('MN','Monday Night'),
+        ('ME','Monday Evening'),
         ('TM','Tuesday Morning'),
         ('TA','Tuesday Afternoon'),
-        ('TN','Tuesday Night'),
+        ('TE','Tuesday Evening'),
         ('WM','Wednesday Morning'),
         ('WA','Wednesday Afternoon'),
-        ('WN','Wednesday Night'),
+        ('WE','Wednesday Evening'),
         ('TrM','Thursday Morning'),
         ('TrA','Thursday Afternoon'),
-        ('TrN','Thursday Night'),
+        ('TrE','Thursday Evening'),
         ('FM','Friday Morning'),
         ('FA','Friday Afternoon'),
-        ('FN','Friday Night'),
+        ('FE','Friday Evening'),
         ('SM','Saturday Morning'),
         ('SA','Saturday Afternoon'),
-        ('SN','Saturday Night'),
-        ('SuM','Sunday Morning'),
-        ('SuA','Sunday Afternoon'),
-        ('SuN','Sunday Night'),
+        ('SE','Saturday Evening'),
+        ('SUM','Sunday Morning'),
+        ('SUA','Sunday Afternoon'),
+        ('SUE','Sunday Evening'),
 
     )
 
@@ -106,6 +108,12 @@ class RequirementsForm(forms.Form):
     times_importance=forms.IntegerField(label='times_importance',
         widget=forms.Select(choices=IMPORTANCE_CHOICES))
  
-
+class UserForm(forms.ModelForm):
+    password=forms.CharField(widget=forms.PasswordInput)
+    
+    
+    class Meta:
+        model=User
+        fields=['username','email']
 
 
