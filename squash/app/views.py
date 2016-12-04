@@ -7,8 +7,6 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from django.http import HttpResponseRedirect
-
-
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 
 from .forms import NameForm, RequirementsForm,UserForm
@@ -95,6 +93,7 @@ def signup(request):
     else:
         return render(request,'app/signup.html', context)
 
+@login_required(login_url='/login',redirect_field_name='')
 def updateProfile(request):
     context={}
     if request.user.is_authenticated():
@@ -149,6 +148,7 @@ def updateProfile(request):
         return render(request,'app/updateProfile.html', context)
     return render(request,'app/updateProfile.html', context)
 
+
 def filter(request):
     context={}
     # def processForm(data):
@@ -164,7 +164,23 @@ def filter(request):
     # context= {'player_id': request.user.player.pk}
     return render(request,'app/filter.html', context)
 
-    
+# @login_required(login_url='/login',redirect_field_name='')
+# def autoMatch(request):
+#     context={}
+#     # def processForm(data):
+#     #     if (data.get('times')) is not None:
+#     #         data.times = repr(data['times'])
+#     if request.user.is_authenticated():
+#         try:
+
+#             context = {'player_id' : request.user.player.pk,
+#                         'login_status':request.user.username}
+#         except:
+#             context={}
+#     # context= {'player_id': request.user.player.pk}
+#     return render(request,'app/match_result.html', context) 
+
+
 def match_result(request):
     context={}
     curPlayer=None
@@ -220,7 +236,6 @@ def match_result(request):
             context['partners']=partners
            
 
-            req.save()
             # context['result'] = data['gender'][0]
             
             return render(request,'app/match_result.html', context)
@@ -232,8 +247,18 @@ def match_result(request):
 
     # if a GET (or any other method) we'll create a blank form
     else:
+        if request.user.is_authenticated(): 
+
+            curPlayer=request.user.player
+            allPlayers=Player.objects.all()
+            matchesFound,partners=curPlayer.rankByScore(allPlayers)
+            context['matchesFound']=matchesFound
+            context['partners']=partners
+            return render(request,'app/match_result.html', context)
+        else: return redirect('login')
+
         # fix this
-        return render(request,'app/filter.html', context)
+        # return render(request,'app/filter.html', context)
 
 
     # print(dict(request.POST))
@@ -246,8 +271,11 @@ def match_result(request):
 
     # return render(request,'app/match_result.html', context)
 
-# youtube
 
+
+
+# Youtube
+@login_required(login_url='/login',redirect_field_name='')
 def profile(request,player_id):
     context={}
     if request.user.is_authenticated():

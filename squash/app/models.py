@@ -105,6 +105,8 @@ class Player(models.Model):
 
     times=models.TextField()
 
+    matchHistory=models.TextField()
+
     def get_absolute_url(self):
         return reverse('app.views.profile',kwargs={'pk':self.pk})
         
@@ -131,6 +133,136 @@ class Player(models.Model):
         UserProfile.objects.get_or_create(user=kwargs['user'])
 
     user_registered.connect(create_user_profile)
+
+    def autoMatch(self,allPlayers):
+        
+        result=dict()
+        numOfMathces=0
+        for player in allPlayers:
+            fullScore=1
+
+            # level
+            # convert decimal to float
+            playerLevel=float(player.level)
+            selfLevel=float(self.level)
+            
+            levelWeight=0.5
+            difference=abs(selfLevel-playerLevel)
+            if difference>=2:
+                score=0
+            else:
+                differenceWeight=0.5
+                score=fullScore-difference*differenceWeight
+            levelScore=levelWeight*score
+            print('levelScore',levelScore)
+
+
+            #timesPreferred
+
+            jsonDec = json.decoder.JSONDecoder()
+            timesList = jsonDec.decode(self.times)
+            timesSet=set(timesList)
+
+            playerTimesList = jsonDec.decode(player.times)
+            playerTimes=set(playerTimesList)
+
+            commonTimes=timesSet.union(playerTimes)
+            numOfCommonBlocks=len(commonTimes)
+            timesWeight=0.3
+            if numOfCommonBlocks>=self.frequency:
+                timesScore=fullScore*timesWeight
+            else:
+                timesScore=numOfCommonBlocks/self.frequency*timesWeight
+            print('timesScore',timesScore)
+
+
+            # frequency
+            frequencyWeight=0.2
+            playerFrequency=player.frequency
+            selfFrequency=self.frequency
+            frequencyScore=min(playerFrequency,selfFrequency)/max(playerFrequency,selfFrequency)*frequencyWeight
+            print('freqScore',frequencyScore)
+
+            scale=100
+            totalScore=(levelScore+frequencyScore+timesScore)*scale
+            totalScore= float("{0:.2f}".format(totalScore))
+
+            
+
+            goodScore=70
+            if totalScore> goodScore and (player != self):
+                numOfMathces+=1
+                if totalScore not in result:
+                    result[totalScore]={player.first_name:{'player': player,'commonTimes': commonTimes,'score':totalScore}}
+                else:
+                    result[totalScore][player.first_name]={'player': player,'commonTimes': commonTimes,'score':totalScore}
+        # tuple: ( number of player found, dictionary with players )
+        return (numOfMathces,result)
+
+    def rankByScore(self,allPlayers):
+        
+        numOfMatches,matchPlayers=self.autoMatch(allPlayers)
+        
+        scores=[]
+        for score in matchPlayers:
+            # playersWithScore=len(matchPlayers[score])
+            # for i in range(playersWithScore):
+            scores.append(score)
+        sortedScores=sorted(scores)
+        sortedScores=list(reversed(sortedScores))
+        rankedResult=dict()
+        curRank=0
+        for i in range(len(sortedScores)):
+            curRank+=1
+            score=sortedScores[i]
+            playersWithScore=matchPlayers[score]
+            # for player in playersWithScore:
+            #     print('here',playersWithScore[player])
+            #     playersWithScore[player].append(score)
+            rankedResult[curRank]=playersWithScore
+            curRank+=(len(playersWithScore)-1)
+        print('rankedResult', rankedResult)
+        return (numOfMatches, rankedResult)
+
+    def getMatchHistory(self,player):
+        Format={'user1': [(20160102,'winnerAndrew',"3:1"),(20160103,'winnerAndrew','1:2')]}
+        jsonDec = json.decoder.JSONDecoder()
+
+        allMatches = jsonDec.decode(self.matchHistory)
+        playerAndrew=player.andrew
+        # list
+        if playerAndrew in allMatches:
+            matches=allMatches[playerAndrew]
+            numOfMatches=len(matches)
+            rankedMatches=rankByDate(matches)
+            return rankedMatches
+        else:
+            return []
+
+    def rankByDate(matches):
+        return sorted(matches,key=lambda x: x[0])
+
+    def findPercentageOfWins(self,player,rankedMatches):
+        totalMatches=len(rankedMatches)
+        for match in rankedMatches:
+            if match[1]==self.andrew:
+                numOfWin+=1
+        return numOfWin/totalMatches
+
+
+    def pointsGain(self,player,result,rankedMatches):
+        # rank lower and loses, no gain no loss
+        if self.points<=player.points and result[1]==player.andrew:
+            return 0
+
+        # rank lower and wins
+        elif self.points<=player.points and result[1]==self.andrew:
+            percentageOfWins=findPercentageOfWins(self,player,rankedMatches)
+
+
+        
+        
+
 
 
 class Requirements(models.Model):
@@ -347,35 +479,6 @@ class Requirements(models.Model):
             curRank+=(len(playersWithScore)-1)
         print('rankedResult', rankedResult)
         return (numOfMatches, rankedResult)
-
-
-            
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
