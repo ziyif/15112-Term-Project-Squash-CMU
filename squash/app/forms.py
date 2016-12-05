@@ -84,6 +84,12 @@ class NameForm(forms.Form):
         widget=forms.Select(choices=FREQUENCY_CHOICES))
     times=forms.CharField(label='times',widget=forms.Select(choices=TIMES_CHOICES))
 
+class MatchScoreForm(forms.Form):
+    match_date= forms.IntegerField(label='match_date')
+    match_score=forms.CharField(label='match_score',max_length=10)
+    opponent_andrew=forms.CharField(label='opponent_andrew',max_length=20)
+    winner_andrew=forms.CharField(label='winner_andrew', max_length=20)
+
 
 class RequirementsForm(forms.Form):
     gender=forms.CharField(

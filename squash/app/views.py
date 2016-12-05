@@ -9,7 +9,7 @@ from django.http import Http404
 from django.http import HttpResponseRedirect
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 
-from .forms import NameForm, RequirementsForm,UserForm
+from .forms import NameForm, RequirementsForm,UserForm,MatchScoreForm
 
 from .models import Player,Requirements
 import json
@@ -31,6 +31,128 @@ def index(request):
     context['greetings'] = "Hi! "
     context['instructions'] = "Please log in to enjoy all features."
     return render(request, 'app/index.html', context)
+
+@login_required(login_url='/login',redirect_field_name='')
+def enter_result(request):
+    if request.user.is_authenticated():
+        try:
+
+            context = {'player_id' : request.user.player.pk,
+                        'login_status':request.user.username}
+        except:
+            context={}
+    # if this is a POST request we need to process the form data
+    if request.method == 'POST':
+        data = dict(request.POST)
+        # create a form instance and populate it with data from the request:
+        form = MatchScoreForm(request.POST)
+
+        # check whether it's valid:
+        if form.is_valid():
+            formData = form.cleaned_data
+        #     context['result'] = form.get("first_name")
+            user=request.user
+            player=user.player
+            if player.matchHistoryByTime == "None":
+                allMatches=[]
+            else:
+                jsonDec = json.decoder.JSONDecoder()
+                allMatches = jsonDec.decode(player.matchHistoryByTime)
+
+            allMatches.append((formData['match_date'],formData['winner_andrew'],
+                    formData['opponent_andrew'],formData['match_score']))
+
+            player.matchHistoryByTime=json.dumps(allMatches)
+            opponentAndrew=formData['opponent_andrew']
+            
+            opponent=Player.objects.get(andrew=opponentAndrew)
+
+            if opponent.matchHistoryByTime == "None":
+                opponentMatches =[]
+            else:
+                jsonDec = json.decoder.JSONDecoder()
+                opponentMatches = jsonDec.decode(opponent.matchHistoryByTime)
+
+            opponentMatches.append((formData['match_date'],formData['winner_andrew'],
+                    player.andrew,formData['match_score']))
+
+            opponent.matchHistoryByTime=json.dumps(opponentMatches)
+
+
+            if player.matchHistoryByOpponent== "None":
+                matchesDict=dict()
+            else:
+                jsonDec = json.decoder.JSONDecoder()
+                matchesDict = jsonDec.decode(player.matchHistoryByOpponent)
+            if opponentAndrew in matchesDict:
+                matchesDict[opponentAndrew].append((formData['match_date'],
+                    formData['winner_andrew'],formData['match_score']))
+            else:
+                matchesDict[opponentAndrew]=[(formData['match_date'],
+                    formData['winner_andrew'],formData['match_score'])]
+            player.matchHistoryByOpponent=json.dumps(matchesDict)
+
+
+            if opponent.matchHistoryByOpponent== "None":
+                opponentDict=dict()
+            else:
+                jsonDec = json.decoder.JSONDecoder()
+                opponentDict = jsonDec.decode(opponent.matchHistoryByOpponent)
+            if player.andrew in opponentDict:
+                opponentDict[player.andrew].append((formData['match_date'],
+                    formData['winner_andrew'],formData['match_score']))
+            else:
+                
+                opponentDict[player.andrew]=[(formData['match_date'],
+                    formData['winner_andrew'],formData['match_score'])]
+            opponent.matchHistoryByOpponent=json.dumps(opponentDict)
+
+                        
+            # player.first_name=data['first_name'][0]
+            # player.last_name=data['last_name'][0]
+            # player.gender=data['gender'][0]
+            # player.andrew=data['andrew'][0]
+            # player.phone=data['phone'][0]
+            # player.email=data['email'][0]
+            # player.level=data['level'][0]
+            # player.frequency=data['frequency'][0]
+            # player.times=json.dumps(data['times'])
+
+            user.player.save()
+            opponent.save()
+            
+            
+            return redirect('/match_history/{}'.format(user.player.pk))
+            # return render(request,'app/profile.html', context)
+
+        else:
+            context['result'] = 'Plase make sure you fill in the form correctly.'
+        return render(request,'app/enter_result.html', context)
+
+    # if a GET (or any other method) we'll create a blank form
+    else:
+        return render(request,'app/enter_result.html', context)
+
+@login_required(login_url='/login',redirect_field_name='')
+def match_history(request,player_id):
+    context={}
+    if request.user.is_authenticated():
+        try:
+            context = {'login_status':request.user.username}
+        except:
+            context={}
+    try:
+        player=Player.objects.get(pk=player_id)
+        context['player']=player
+        context['player_id']=request.user.player.pk
+        jsonDec = json.decoder.JSONDecoder()
+        allMatches = jsonDec.decode(player.matchHistoryByTime)
+        context['matches']=allMatches
+        
+
+    except Player.DoesNotExist:
+        raise Http404("Player does not exist")
+    return render (request, 'app/match_history.html',context)
 
 def partner(request):
     context={}

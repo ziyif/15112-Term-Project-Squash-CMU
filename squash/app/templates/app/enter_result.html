@@ -1,0 +1,83 @@
+{% extends 'app/base.html' %}
+
+{% block title %}Filter{% endblock %}
+
+{% block body %}
+
+<!-- adapted from https://www.tutorialspoint.com/materialize/materialize_selects.htm -->
+  
+   <head>
+      <title>The Materialize Selects Example</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">      
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/css/materialize.min.css">
+      <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>           
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/js/materialize.min.js"></script> 
+    <script>
+         $(document).ready(function() {
+         $('select').material_select();
+      });
+      </script>
+   </head>
+
+    <div class="container">
+      <p> {{result}} </p>
+<!--     <div class="section"><br><br><br><br><br></div> -->
+      <form class="col s12" method="POST" action="/enter_result" id="filter-form">
+        {% csrf_token %}
+
+        <div class="row">
+          <div class="input-field col s6">
+            <input placeholder="Placeholder" name="opponent_andrew" type="text" class="validate">
+            <label for="opponent_andrew">Opponent's Andrew ID</label>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="input-field col s6">
+            <input placeholder="Placeholder" name="winner_andrew" type="text" class="validate">
+            <label for="winner_andrew">Winner's Andrew ID</label>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="input-field col s6">
+            <select name='match_score'>
+              <option value="" disabled selected>Choose your option</option>
+              <option value="3:0">3:0</option>
+              <option value="3:1">3:1</option>
+              <option value="3:2">3:2</option>
+              <option value="0:3">0:3</option>
+              <option value="1:3">1:3</option>
+              <option value="2:3">2:3</option>
+            </select>
+            <label>Match Score (Your Score: Opponent's Score)</label>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="input-field col s6">
+            <input placeholder="Placeholder" name="match_date" type="text" class="validate">
+            <label for="match_date">Match Date</label>
+          </div>
+        </div>
+
+        <!-- <input type="date" class="datepicker"> -->
+
+        
+
+
+        <div class='section'><br></div>
+
+
+        <div class="row">
+          <button class="btn waves-effect waves-light" type="submit" name="action">Submit
+            <i class="material-icons right">send</i>
+          </button>
+        </div>
+      </form>
+      
+    </div>
+
+
+{% endblock %}

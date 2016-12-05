@@ -104,9 +104,9 @@ class Player(models.Model):
     )
 
     times=models.TextField()
-    points=models.IntegerField(null=True)
-    matchHistoryByOpponent=models.TextField(null=True)
-    matchHistoryByTime=models.TextField(null=True)
+    points=models.IntegerField(default=0)
+    matchHistoryByOpponent=models.TextField(default="None")
+    matchHistoryByTime=models.TextField(default="None")
     # matchHistory=models.TextField(default="None")
 
     def get_absolute_url(self):

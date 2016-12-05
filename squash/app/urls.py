@@ -8,6 +8,10 @@ urlpatterns = [
     url(r'^login$', views.login, name='login'),
     url(r'^logout$', views.logout, name='logout'),
 
+
+    url(r'^match_history/(?P<player_id>[0-9]+)/$', views.match_history, name='match_history'),
+    url(r'^enter_result$', views.enter_result, name='enter_result'),
+
     url(r'^partner$', views.partner, name='partner'),
     url(r'^signup$', views.signup, name='signup'),
     url(r'^update$', views.updateProfile, name='update'),
