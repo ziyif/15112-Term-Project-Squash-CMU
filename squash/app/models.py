@@ -10,7 +10,6 @@ from django.contrib.auth.models import (
 from django.core.urlresolvers import reverse
 import json
 
-import datetime
 
 #######
 from django.db import models
@@ -105,13 +104,8 @@ class Player(models.Model):
     )
 
     times=models.TextField()
-    # points=models.IntegerField(choices=FREQUENCY_CHOICES, default=5)
 
-    # Format={'user1': [(20160102,'winnerAndrew',"3:1"),(20160103,'winnerAndrew','1:2')]}
-    # matchHistoryByOpponent=models.TextField(null=True)
-
-    # Format=[(20160102,'winnerAndrew','playerAndrew',"3:1"),(20160103,'winnerAndrew','playerAndrew','1:2')]
-    # matchHistoryByTime=models.TextField(null=True)
+    matchHistory=models.TextField()
 
     def get_absolute_url(self):
         return reverse('app.views.profile',kwargs={'pk':self.pk})
@@ -227,208 +221,43 @@ class Player(models.Model):
             #     playersWithScore[player].append(score)
             rankedResult[curRank]=playersWithScore
             curRank+=(len(playersWithScore)-1)
-        
+        print('rankedResult', rankedResult)
         return (numOfMatches, rankedResult)
 
+    def getMatchHistory(self,player):
+        Format={'user1': [(20160102,'winnerAndrew',"3:1"),(20160103,'winnerAndrew','1:2')]}
+        jsonDec = json.decoder.JSONDecoder()
 
-    ##############
-    # Match Result, Scoring systems
+        allMatches = jsonDec.decode(self.matchHistory)
+        playerAndrew=player.andrew
+        # list
+        if playerAndrew in allMatches:
+            matches=allMatches[playerAndrew]
+            numOfMatches=len(matches)
+            rankedMatches=rankByDate(matches)
+            return rankedMatches
+        else:
+            return []
 
-    # def getAllMatchHistory(self):
-    #     jsonDec = json.decoder.JSONDecoder()
-    #     allMatches = jsonDec.decode(self.matchHistoryByTime)
-    #     rankedMatches=rankByDate(allMatches)
-    #     return rankedMatches
+    def rankByDate(matches):
+        return sorted(matches,key=lambda x: x[0])
 
-    # def getMatchHistoryAgainstOpponent(self,player):
-    #     # Format={'user1': [(20160102,'winnerAndrew',"3:1"),(20160103,'winnerAndrew','1:2')]}
-    #     jsonDec = json.decoder.JSONDecoder()
-
-    #     allMatches = jsonDec.decode(self.matchHistoryByOpponent)
-    #     playerAndrew=player.andrew
-    #     # list
-    #     if playerAndrew in allMatches:
-    #         matches=allMatches[playerAndrew]
-    #         numOfMatches=len(matches)
-    #         rankedMatches=rankByDate(matches)
-    #         return rankedMatches
-    #     else:
-    #         return []
-
-    # def rankByDate(matches):
-    #     rankedMatches=sorted(matches,key=lambda x: x[0])
-    #     rankedMatches=rankedMatches[::-1]
-    #     return rankedMatches
-
-    # def findPercentageOfWins(self,matches):
-    #     totalMatches=len(matches)
-    #     if totalMatches==0:
-    #         return None
-    #     for match in matches:
-    #         if match[1]==self.andrew:
-    #             numOfWin+=1
-    #     return numOfWin/totalMatches
-
-    # def getDate():
-    #     today=datetime.datetime.today()
-    #     year=str(today.year)
-    #     month=str(today.month)
-    #     if len(month)==1:
-    #         month="0"+month
-    #     day=str(today.day)
-    #     if len(day)==1:
-    #         day="0"+day
-    #     date=year+month+day
-    #     return eval(date)
-
-    # def dateOfNMonthsAgo(n):
-    #     thisDay=datetime.date.today() - datetime.timedelta(n*365/12)
-    #     year=str(thisDay.year)
-    #     month=str(thisDay.month)
-    #     if len(month)==1:
-    #         month="0"+month
-    #     day=str(thisDay.day)
-    #     if len(day)==1:
-    #         day="0"+day
-    #     date=year+month+day
-    #     return eval(date)
-
-        
-    # def getRecentMatches(rankedMatches,n):
-    #     currentDate=getDate()
-    #     dateOfNMonthsAgo=dateOfNMonthsAgo(n)
-    #     result=[]
-    #     for i in range (len(rankedMatches)):
-    #         match=rankedMatches[i]
-    #         dateOfMatch=match[0]
-    #         if dateOfMatch>=dateOfNMonthsAgo:
-    #             result.append(match)
-    #         else:
-    #             break
-    #     return result
+    def findPercentageOfWins(self,player,rankedMatches):
+        totalMatches=len(rankedMatches)
+        for match in rankedMatches:
+            if match[1]==self.andrew:
+                numOfWin+=1
+        return numOfWin/totalMatches
 
 
-    # def getActivityScore(self,timePeriod):
-    #     allMatches=self.getAllMatchHistory()
-    #     # activity in 3 months
-    #     recentMathces=getRecentMatches(allMatches,timePeriod)
-    #     numOfRecentMatches=len(recentMathces)
-    #     if numOfRecentMatches==0:
-    #         return 0
-    #     else:
-    #         return 1-1/numOfRecentMatches
+    def pointsGain(self,player,result,rankedMatches):
+        # rank lower and loses, no gain no loss
+        if self.points<=player.points and result[1]==player.andrew:
+            return 0
 
-    # def getConfidenceFactorAgainstOpponent(self,player):
-        
-    #     selfActivityScore=self.getActivityScore(5)
-    #     playerActivityScore=player.getActivityScore(5)
-    #     activityScore= selfActivityScore/ (selfActivityScore+playerActivityScore)
-
-    #     selfPoints= self.points
-    #     playerPoints= player.points
-    #     difference=selfPoints-playerPoints
-    #     if difference>=100:
-    #         rankingScore=1
-    #     elif 0<difference<100:
-    #         rankingScore=1*difference/100
-    #     else: 
-    #         rankingScore=0
-
-    #     scale=100
-    #     # if have not played with player
-    #     if numOfTotalMatches==0:
-    #         mostRecentMatchScore=0
-    #         totalScore=mostRecentMatchScore*0.1+activityScore*0.2+rankingScore*0.7
-    #         return scale*totalScore
-
-    #     matchesAgainstOpponent=self.getMatchHistoryAgainstOpponent(player)
-    #     numOfTotalMatches=len(matchesAgainstOpponent)
-
-    #     # recent 5 months
-    #     recentMatches=getRecentMatches(matchesAgainstOpponent,5)
-    #     numOfRecentMatches=len(recentMatches)
-
-    #     totalPercentageOfWins=self.findPercentageOfWins(matchesAgainstOpponent)
-    #     recentPercentageOfWins=self.findPercentageOfWins(recentMatches)
-
-    #     mostRecentMatchWinner=matchesAgainstOpponent[0][1]
-    #     if mostRecentMatchWinner==self.andrew:
-    #         mostRecentMatchScore=1
-    #     else:
-    #         mostRecentMatchScore=0
-
-
-    #     if numOfRecentMatches>=2:
-    #         percentageOfWinsScore=0.8*recentPercentageOfWins+0.2*totalPercentageOfWins
-    #     elif numOfRecentMatches==1:
-    #         percentageOfWinsScore=0.6*recentPercentageOfWins+0.4*totalPercentageOfWins
-    #     # have not played with player recently
-    #     elif numOfRecentMatches==0:
-    #         recentPercentageOfWins=0
-    #         percentageOfWinsScore==0.2*recentPercentageOfWins+0.8*totalPercentageOfWins
-
-    #     if 1<=numOfTotalMatches<3:
-    #         return (0.1*mostRecentMatchScore+0.4*percentageOfWinsScore+0.2*activityScore
-    #                     +0.3*rankingScore)
-    #     elif totalMatches>=3:
-    #         return (0.1*mostRecentMatchScore+0.5*percentageOfWinsScore+0.2*activityScore
-    #                     +0.2*rankingScore)
-
-
-    # def getOverallConfidenceFactor(self):
-    #     allMatches=self.getAllMatchHistory()
-    #     recentMatches=getRecentMatches(allMatches,5)
-    #     percentageOfWins=self.findPercentageOfWins(recentMatches)
-    #     activity_in_five_months=self.getActivityScore(5)
-    #     activity_in_three_months=self.getActivityScore(3)
-    #     activityScore=0.4*activity_in_five_months+0.6*activity_in_three_months
-
-    #     totalScore=0.6*percentageOfWins+0.4*activityScore
-    #     scale=100
-
-    #     return totalScore*scale
-
-
-
-    # def pointsGain(self,player,result,rankedMatches):
-    #     pointsDifference=abs(self.points-player.points)
-
-    #     # rank lower and loses, no gain no loss
-    #     if self.points<player.points and result[1]==player.andrew:
-    #         return 0
-
-    #     # rank lower and wins
-    #     elif self.points<player.points and result[1]==self.andrew:
-    #         if pointsDifference>=100:
-    #             return 50
-    #         elif 50<=pointsDifference<100:
-    #             return 25
-    #         elif pointsDifference<50:
-    #             return 15
-    #     # rank higher and wins
-    #     elif self.points>player.points and result[1]==self.andrew:
-    #         if pointsDifference<=20:
-    #             return 5
-    #         else: 
-    #             return 0
-
-    #     # rank higher and loses:
-    #     elif self.points>player.points and result[1]==player.andrew:
-    #         if pointsDifference>=100:
-    #             return -30
-    #         elif 50<=pointsDifference<100:
-    #             return -15
-    #         elif pointsDifference<50:
-    #             return -10
-
-    #     # rank same and wins:
-    #     elif self.points == player.points and result[1]== self.andrew:
-    #         return 10
-
-    #     # rank same and loses:
-    #     elif self.points == player.points and result[1]== player.andrew:
-    #         return -5
-
+        # rank lower and wins
+        elif self.points<=player.points and result[1]==self.andrew:
+            percentageOfWins=findPercentageOfWins(self,player,rankedMatches)
 
 
         
