@@ -31,8 +31,14 @@
           {% endif %}
           <!-- <li><a href="/signup">Sign Up</a></li> -->
           <li><a href="/partner">Find a Partner</a></li>
-          <!-- <li><a href="/court">Find a Court</a></li>
-          <li><a href="/ladder">Ladder</a></li> -->
+          <!-- <li><a href="/court">Find a Court</a></li> -->
+
+          {% if player_id != None %}
+          <li><a href="/match_history/{{player_id}}">View Match History</a></li>
+          {% endif %}
+
+      
+          <li><a href="/ladder">Ladder</a></li>
           {% if login_status != None %}
           <li><a href="/logout">Logout</a></li>
           {% endif %}

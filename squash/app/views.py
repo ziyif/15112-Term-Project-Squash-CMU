@@ -23,7 +23,7 @@ def index(request):
 
     if request.user.is_authenticated():
         try:
-
+            print('hihi')
             context = {'player_id' : request.user.player.pk,
                         'login_status':request.user.username}
         except:
@@ -31,6 +31,45 @@ def index(request):
     context['greetings'] = "Hi! "
     context['instructions'] = "Please log in to enjoy all features."
     return render(request, 'app/index.html', context)
+
+
+@login_required(login_url='/login',redirect_field_name='')
+def profile(request,player_id):
+    context={}
+    if request.user.is_authenticated():
+        try:
+            context = {'login_status':request.user.username}
+
+        except:
+            context={}
+
+    try:
+        
+        player=Player.objects.get(pk=player_id)
+        context['player']=player
+        context['player_id']=request.user.player.pk
+        
+
+    except Player.DoesNotExist:
+        raise Http404("Player does not exist")
+    return render (request, 'app/profile.html',context)
+
+def match_history(request,player_id):
+    context={}
+    if request.user.is_authenticated():
+        try:
+            context = {'login_status':request.user.username}
+        except:
+            context={}
+    try:
+        player=Player.objects.get(pk=player_id)
+        context['player']=player
+        context['player_id']=request.user.player.pk
+        
+
+    except Player.DoesNotExist:
+        raise Http404("Player does not exist")
+    return render (request, 'app/match_history.html',context)
 
 def partner(request):
     context={}
@@ -348,7 +387,6 @@ class UserFormView(View):
 
 # from django documentation
 def login(request):
-    
     context={'result':None}
     username = request.POST.get('username')
     password = request.POST.get('password')

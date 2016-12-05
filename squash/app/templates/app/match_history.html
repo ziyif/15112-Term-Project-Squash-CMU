@@ -1,0 +1,21 @@
+{% extends 'app/base.html' %}
+
+
+{% block title %}User Profile{% endblock %}
+
+{% block body %}
+  
+
+    <h1>{{ player.first_name}} {{"'s Match History"}}</h1>
+    <ul>
+      <li>{{'Andrew ID: '}} {{player.andrew}}</li>
+      <li>{{'Level: '}}{{player.level}}</li>
+
+
+    </ul>
+
+    <a onclick="location.href='/enter_result';"
+              class="waves-effect waves-light btn-large">Enter Match Result</a>
+
+
+{% endblock %}
