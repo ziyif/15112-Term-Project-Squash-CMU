@@ -5,7 +5,8 @@ from .models import Player
 
 GENDER_CHOICES=(
         ('M','Male'),
-        ('F','Female')
+        ('F','Female'),
+        ('D',"Don't Care")
 
     )
 
@@ -74,8 +75,8 @@ class NameForm(forms.Form):
     andrew=forms.CharField(label='andrew', max_length=10)
 
     gender=forms.CharField(
-            label='gender', max_length=1,
-            widget=forms.Select(choices=GENDER_CHOICES))
+            label='gender', max_length=10)
+    # widget=forms.Select(choices=GENDER_CHOICES))
     phone=forms.CharField(label='phone', max_length=20)
     email=forms.CharField(label='email', max_length=50)
     level= forms.DecimalField(label='level',max_digits=2,decimal_places=1,
@@ -93,7 +94,7 @@ class MatchScoreForm(forms.Form):
 
 class RequirementsForm(forms.Form):
     gender=forms.CharField(
-            label='gender', max_length=1,
+            label='gender', max_length=10,
             widget=forms.Select(choices=GENDER_CHOICES))
     min_level= forms.DecimalField(label='min_level',max_digits=2,decimal_places=1,
         widget=forms.Select(choices=LEVEL_CHOICES))

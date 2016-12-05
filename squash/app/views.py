@@ -53,77 +53,128 @@ def enter_result(request):
         #     context['result'] = form.get("first_name")
             user=request.user
             player=user.player
-            if player.matchHistoryByTime == "None":
-                allMatches=[]
-            else:
-                jsonDec = json.decoder.JSONDecoder()
-                allMatches = jsonDec.decode(player.matchHistoryByTime)
+            try:
 
-            allMatches.append((formData['match_date'],formData['winner_andrew'],
-                    formData['opponent_andrew'],formData['match_score']))
-
-            player.matchHistoryByTime=json.dumps(allMatches)
-            opponentAndrew=formData['opponent_andrew']
             
-            opponent=Player.objects.get(andrew=opponentAndrew)
+            # matchHistoryByTime
+            
+                opponentAndrew=formData['opponent_andrew']
+                opponent=Player.objects.get(andrew=opponentAndrew)
+                winnerAndrew=formData['winner_andrew']
+                winner=Player.objects.get(andrew=winnerAndrew)
 
-            if opponent.matchHistoryByTime == "None":
-                opponentMatches =[]
-            else:
-                jsonDec = json.decoder.JSONDecoder()
-                opponentMatches = jsonDec.decode(opponent.matchHistoryByTime)
+                # update ranking points
+                selfGain=player.pointsGain(opponent,winnerAndrew)
+                opponentGain=opponent.pointsGain(player,winnerAndrew)
 
-            opponentMatches.append((formData['match_date'],formData['winner_andrew'],
-                    player.andrew,formData['match_score']))
+                player.points+=selfGain
+                opponent.points+=opponentGain
 
-            opponent.matchHistoryByTime=json.dumps(opponentMatches)
+                matchResultForPlayer=(formData['match_date'],
+                                        winnerAndrew,
+                                        winner.first_name,
+                                        opponentAndrew,
+                                        opponent.id,
+                                        opponent.first_name,
+                                        opponent.last_name,
+                                        formData['match_score'],
+                                        selfGain,
+                                        opponentGain,
+                                        player.points,
+                                        opponent.points
+                                        )
 
+                matchResultForOpponent=(formData['match_date'],
+                                        winnerAndrew,
+                                        winner.first_name,
+                                        player.andrew,
+                                        player.id,
+                                        player.first_name,
+                                        player.last_name,
+                                        formData['match_score'],
+                                        opponentGain,
+                                        selfGain,
+                                        opponent.points,
+                                        player.points
+                                        )
 
-            if player.matchHistoryByOpponent== "None":
-                matchesDict=dict()
-            else:
-                jsonDec = json.decoder.JSONDecoder()
-                matchesDict = jsonDec.decode(player.matchHistoryByOpponent)
-            if opponentAndrew in matchesDict:
-                matchesDict[opponentAndrew].append((formData['match_date'],
-                    formData['winner_andrew'],formData['match_score']))
-            else:
-                matchesDict[opponentAndrew]=[(formData['match_date'],
-                    formData['winner_andrew'],formData['match_score'])]
-            player.matchHistoryByOpponent=json.dumps(matchesDict)
+                # update user's match history
+                if player.matchHistoryByTime == "None":
+                    allMatches=[]
+                else:
+                    jsonDec = json.decoder.JSONDecoder()
+                    allMatches = jsonDec.decode(player.matchHistoryByTime)
 
+                allMatches.append(matchResultForPlayer)
 
-            if opponent.matchHistoryByOpponent== "None":
-                opponentDict=dict()
-            else:
-                jsonDec = json.decoder.JSONDecoder()
-                opponentDict = jsonDec.decode(opponent.matchHistoryByOpponent)
-            if player.andrew in opponentDict:
-                opponentDict[player.andrew].append((formData['match_date'],
-                    formData['winner_andrew'],formData['match_score']))
-            else:
+                player.matchHistoryByTime=json.dumps(allMatches)
                 
-                opponentDict[player.andrew]=[(formData['match_date'],
-                    formData['winner_andrew'],formData['match_score'])]
-            opponent.matchHistoryByOpponent=json.dumps(opponentDict)
+                # update opponent's Match History
+                if opponent.matchHistoryByTime == "None":
+                    opponentMatches =[]
+                else:
+                    jsonDec = json.decoder.JSONDecoder()
+                    opponentMatches = jsonDec.decode(opponent.matchHistoryByTime)
 
-                        
-            # player.first_name=data['first_name'][0]
-            # player.last_name=data['last_name'][0]
-            # player.gender=data['gender'][0]
-            # player.andrew=data['andrew'][0]
-            # player.phone=data['phone'][0]
-            # player.email=data['email'][0]
-            # player.level=data['level'][0]
-            # player.frequency=data['frequency'][0]
-            # player.times=json.dumps(data['times'])
+                opponentMatches.append(matchResultForOpponent)
 
-            user.player.save()
-            opponent.save()
-            
-            
-            return redirect('/match_history/{}'.format(user.player.pk))
-            # return render(request,'app/profile.html', context)
+                opponent.matchHistoryByTime=json.dumps(opponentMatches)
+
+                # matchHistoryByOpponent
+
+                selfMatchInfo=(formData['match_date'],
+                                winnerAndrew,
+                                winner.first_name,
+                                formData['match_score'],
+                                selfGain,
+                                opponentGain,
+                                player.points,
+                                opponent.points
+                                )
+                opponentMatchInfo=(formData['match_date'],
+                                    winnerAndrew,
+                                    winner.first_name,
+                                    formData['match_score'],
+                                    opponentGain,
+                                    selfGain,
+                                    opponent.points,
+                                    player.points
+                                    )
+
+                # update for user
+                if player.matchHistoryByOpponent== "None":
+                    matchesDict=dict()
+                else:
+                    jsonDec = json.decoder.JSONDecoder()
+                    matchesDict = jsonDec.decode(player.matchHistoryByOpponent)
+                if opponentAndrew in matchesDict:
+                    matchesDict[opponentAndrew].append(selfMatchInfo)
+                else:
+                    matchesDict[opponentAndrew]=[selfMatchInfo]
+                player.matchHistoryByOpponent=json.dumps(matchesDict)
+
+                # update for user's opponent
+                if opponent.matchHistoryByOpponent== "None":
+                    opponentDict=dict()
+                else:
+                    jsonDec = json.decoder.JSONDecoder()
+                    opponentDict = jsonDec.decode(opponent.matchHistoryByOpponent)
+                if player.andrew in opponentDict:
+                    opponentDict[player.andrew].append(opponentMatchInfo)
+                else:
+                    
+                    opponentDict[player.andrew]=[opponentMatchInfo]
+                opponent.matchHistoryByOpponent=json.dumps(opponentDict)
+
+
+                user.player.save()
+                opponent.save()
+                
+                
+                return redirect('/match_history/{}'.format(user.player.pk))
+                # return render(request,'app/profile.html', context)
+            except:
+                context['result'] = 'Plase make sure you fill in the form correctly.'
 
         else:
             context['result'] = 'Plase make sure you fill in the form correctly.'
@@ -147,12 +198,43 @@ def match_history(request,player_id):
         context['player_id']=request.user.player.pk
         jsonDec = json.decoder.JSONDecoder()
         allMatches = jsonDec.decode(player.matchHistoryByTime)
+        confidenceFactor=player.getOverallConfidenceFactor()
         context['matches']=allMatches
+        context['confidence_factor']=confidenceFactor
         
 
     except Player.DoesNotExist:
         raise Http404("Player does not exist")
     return render (request, 'app/match_history.html',context)
+
+@login_required(login_url='/login',redirect_field_name='')
+def match_history_opponent(request,player_id,opponent_id):
+    context={}
+    if request.user.is_authenticated():
+        try:
+            context = {'login_status':request.user.username}
+
+        except:
+            context={}
+
+    try:    
+        player=Player.objects.get(pk=player_id)
+        opponent=Player.objects.get(pk=opponent_id)
+        matches=player.getMatchHistoryAgainstOpponent(opponent)
+        recent_matches=player.getRecentMatches(matches,5)
+        context['player']=player
+        context['opponent']=opponent
+        context['player_id']=request.user.player.pk
+        context['total_percent']=player.findPercentageOfWins(matches)
+        context['recent_percent']=player.findPercentageOfWins(recent_matches)
+        context['matches']=matches
+        print(player.getConfidenceFactorAgainstOpponent(opponent))
+        context['confidence_factor_against']=player.getConfidenceFactorAgainstOpponent(opponent)
+        
+    except Player.DoesNotExist:
+        raise Http404("Player does not exist")
+    return render (request, 'app/match_history_opponent.html',context)
+
 
 def partner(request):
     context={}
@@ -236,18 +318,17 @@ def updateProfile(request):
         if form.is_valid():
             formData = form.cleaned_data
         #     context['result'] = form.get("first_name")
-            user=request.user
-            user.player.delete()
-            player=Player(user=request.user,
-                first_name=formData['first_name'],
-                last_name=formData['last_name'],
-                gender=formData['gender'],
-                andrew=formData['andrew'],
-                phone=formData['phone'],
-                email=formData['email'],
-                level=formData['level'],
-                frequency=formData['frequency'],
-                times=json.dumps(data['times']))
+            player=request.user.player
+            player.first_name=formData['first_name']
+            player.last_name=formData['last_name']
+            player.gender=formData['gender']
+            player.andrew=formData['andrew']
+            player.phone==formData['phone']
+            player.email=formData['email']
+            player.level=formData['level']
+            player.frequency=formData['frequency']
+            player.times=json.dumps(data['times'])
+
             # player.first_name=data['first_name'][0]
             # player.last_name=data['last_name'][0]
             # player.gender=data['gender'][0]
@@ -415,10 +496,15 @@ def profile(request,player_id):
         player=Player.objects.get(pk=player_id)
         context['player']=player
         context['player_id']=request.user.player.pk
+        jsonDec = json.decoder.JSONDecoder()
+        timesList = jsonDec.decode(player.times)
+        timesSet=set(timesList)
+        context['preferred_times']=timesSet
+        
+
 
         
-        
-
+    
     except Player.DoesNotExist:
         raise Http404("Player does not exist")
     return render (request, 'app/profile.html',context)

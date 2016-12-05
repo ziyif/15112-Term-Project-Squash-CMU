@@ -1,0 +1,42 @@
+{% extends 'app/base.html' %}
+
+
+{% block title %}Match History againts {{opponent.first_name}}{% endblock %}
+
+{% block body %}
+  
+
+    <h1>{{ player.first_name}} {{"'s Match History Against"}} {{opponent.first_name}}</h1>
+    <ul>
+      <li>{{'Andrew ID: '}} {{player.andrew}}</li>
+      <li>{{'Level: '}}{{player.level}}</li>
+
+      <li>Opponent's Name: {{opponent.first_name}} {{opponent.last_name}}</li>
+      <li>Opponent's Andrew ID: {{opponent.andrew}}</li>
+      <li>{{'Level: '}}{{opponent.level}}</li>
+      <li>Percentage of matches won against Opponent: {{total_percent}} Percent</li>
+      <li>Percentage of matches won against Opponent in the last 5 months: {{recent_percent}} Percent</li>
+      <li>Confidence Factor against Opponent: {{confidence_factor_against}}</li>
+    </ul>
+
+    <ul>
+        <li>Match History Against {{opponent.first_name}} {{opponent.last_name}}
+        </li>
+        {% for a,b,c,d,e,f,g,h in matches %}
+          <li>Date: {{a}}  Winner: {{c}}({{b}}) Score: {{d}} Points Gained {{e}} 
+          Opponent's Points Gained {{f}}</li>
+          <li>Your Points after Match:{{g}}</li>
+          <li>Opponent's Points After Match {{h}}</li>
+
+        {% endfor %}
+    </ul>
+
+
+
+    <div class="row">
+    <a onclick="location.href='/enter_result';"
+              class="waves-effect waves-light btn-large">Enter Match Result</a>
+    </div>
+
+
+{% endblock %}

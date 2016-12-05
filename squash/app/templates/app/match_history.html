@@ -1,7 +1,7 @@
 {% extends 'app/base.html' %}
 
 
-{% block title %}User Profile{% endblock %}
+{% block title %}Match History{% endblock %}
 
 {% block body %}
   
@@ -10,15 +10,22 @@
     <ul>
       <li>{{'Andrew ID: '}} {{player.andrew}}</li>
       <li>{{'Level: '}}{{player.level}}</li>
+      <li>Ranking Points{{player.points}}</li>
+      <li>Confidence Factor: {{confidence_factor}}</li>
     </ul>
 
-
-        {% for a,b,c,d in matches %}
-        <li>{{a}}</li>
-        <li>{{b}}</li>
-        <li>{{c}}</li>
-        <li>{{d}}</li>
+    <ul>
+        {% for a,b,c,d,e,f,g,h,i,j,k,l in matches %}
+          <li>Date: {{a}} </li>
+          <li>Against: <a href="/match_history_opponent/{{player.id}}/{{e}}">
+            {{f}} {{g}}</a> </li>
+          <li>Winner: {{c}}({{b}})</li>
+          <li>Score: {{h}}</li>
+          <li>Points Gained {{i}}  Opponent's Points Gained {{j}} </li>
+          <li>Your Points after Match:{{k}}</li>
+          <li>Opponent's Points After Match{{l}}</li>
         {% endfor %}
+    </ul>
 
 
 

@@ -10,6 +10,8 @@ urlpatterns = [
 
 
     url(r'^match_history/(?P<player_id>[0-9]+)/$', views.match_history, name='match_history'),
+    url(r'^match_history_opponent/(?P<player_id>[0-9]+)/(?P<opponent_id>[0-9]+)/$', 
+                views.match_history_opponent, name='match_history_opponent'),
     url(r'^enter_result$', views.enter_result, name='enter_result'),
 
     url(r'^partner$', views.partner, name='partner'),

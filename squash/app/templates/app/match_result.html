@@ -12,8 +12,14 @@
             {% for rank, players in partners.items %}
             
                 {% for playerKey, playerInfo in players.items %}
+                    
                     <li> Rank: {{rank}}  Player Name:  {{playerKey}} {{playerInfo.player.last_name}}  </li>
+                    <li><a href="/user/{{playerInfo.player.id}}">View Player Profile</a></li>
+                    <li> Gender: {{playerInfo.player.gender}} </li>
                     <li> Email: {{playerInfo.player.email}} </li>
+                    <li> Phone Number: {{playerInfo.player.phone}} </li>
+                    <li> Skill Level: {{playerInfo.player.level}} </li>
+
                     <li> Common Times:  
 
                         {{playerInfo.commonTimes | times_in_week | join:", "}} </li>

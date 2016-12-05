@@ -10,7 +10,7 @@ from django.contrib.auth.models import (
 from django.core.urlresolvers import reverse
 import json
 
-
+import datetime
 #######
 from django.db import models
 from django.conf import settings
@@ -27,12 +27,13 @@ class Player(models.Model):
     last_name=models.CharField(max_length=30,default='None')
 
     GENDER_CHOICES=(
-        ('M','Male'),
-        ('F','Female')
+        ('Male','Male'),
+        ('Female','Female'),
+        ('Other','Other')
 
     )
     gender=models.CharField(
-        max_length=1,
+        max_length=10,
         choices=GENDER_CHOICES,
 
     )
@@ -108,7 +109,7 @@ class Player(models.Model):
     matchHistoryByOpponent=models.TextField(default="None")
     matchHistoryByTime=models.TextField(default="None")
     # matchHistory=models.TextField(default="None")
-
+    # [[date,winner,opponentandrew,opponent,score]]
     def get_absolute_url(self):
         return reverse('app.views.profile',kwargs={'pk':self.pk})
         
@@ -267,7 +268,7 @@ class Player(models.Model):
     def getAllMatchHistory(self):
         jsonDec = json.decoder.JSONDecoder()
         allMatches = jsonDec.decode(self.matchHistoryByTime)
-        rankedMatches=rankByDate(allMatches)
+        rankedMatches=self.rankByDate(allMatches)
         return rankedMatches
 
     def getMatchHistoryAgainstOpponent(self,player):
@@ -280,18 +281,19 @@ class Player(models.Model):
         if playerAndrew in allMatches:
             matches=allMatches[playerAndrew]
             numOfMatches=len(matches)
-            rankedMatches=rankByDate(matches)
+            rankedMatches=self.rankByDate(matches)
             return rankedMatches
         else:
             return []
 
-    def rankByDate(matches):
+    def rankByDate(self,matches):
         rankedMatches=sorted(matches,key=lambda x: x[0])
         rankedMatches=rankedMatches[::-1]
         return rankedMatches
 
     def findPercentageOfWins(self,matches):
         totalMatches=len(matches)
+        numOfWin=0
         if totalMatches==0:
             return None
         for match in matches:
@@ -299,7 +301,7 @@ class Player(models.Model):
                 numOfWin+=1
         return numOfWin/totalMatches
 
-    def getDate():
+    def getDate(self):
         today=datetime.datetime.today()
         year=str(today.year)
         month=str(today.month)
@@ -311,7 +313,7 @@ class Player(models.Model):
         date=year+month+day
         return eval(date)
 
-    def dateOfNMonthsAgo(n):
+    def dateOfNMonthsAgo(self,n):
         thisDay=datetime.date.today() - datetime.timedelta(n*365/12)
         year=str(thisDay.year)
         month=str(thisDay.month)
@@ -324,9 +326,9 @@ class Player(models.Model):
         return eval(date)
 
         
-    def getRecentMatches(rankedMatches,n):
-        currentDate=getDate()
-        dateOfNMonthsAgo=dateOfNMonthsAgo(n)
+    def getRecentMatches(self,rankedMatches,n):
+        currentDate=self.getDate()
+        dateOfNMonthsAgo=self.dateOfNMonthsAgo(n)
         result=[]
         for i in range (len(rankedMatches)):
             match=rankedMatches[i]
@@ -341,7 +343,7 @@ class Player(models.Model):
     def getActivityScore(self,timePeriod):
         allMatches=self.getAllMatchHistory()
         # activity in 3 months
-        recentMathces=getRecentMatches(allMatches,timePeriod)
+        recentMathces=self.getRecentMatches(allMatches,timePeriod)
         numOfRecentMatches=len(recentMathces)
         if numOfRecentMatches==0:
             return 0
@@ -352,7 +354,10 @@ class Player(models.Model):
         
         selfActivityScore=self.getActivityScore(5)
         playerActivityScore=player.getActivityScore(5)
-        activityScore= selfActivityScore/ (selfActivityScore+playerActivityScore)
+        if selfActivityScore+playerActivityScore==0:
+            activityScore=0
+        else:
+            activityScore= selfActivityScore/(selfActivityScore+playerActivityScore)
 
         selfPoints= self.points
         playerPoints= player.points
@@ -365,18 +370,21 @@ class Player(models.Model):
             rankingScore=0
 
         scale=100
+
+        matchesAgainstOpponent=self.getMatchHistoryAgainstOpponent(player)
+        numOfTotalMatches=len(matchesAgainstOpponent)
+
+        # recent 5 months
+        recentMatches=self.getRecentMatches(matchesAgainstOpponent,5)
+        numOfRecentMatches=len(recentMatches)
+
         # if have not played with player
         if numOfTotalMatches==0:
             mostRecentMatchScore=0
             totalScore=mostRecentMatchScore*0.1+activityScore*0.2+rankingScore*0.7
             return scale*totalScore
 
-        matchesAgainstOpponent=self.getMatchHistoryAgainstOpponent(player)
-        numOfTotalMatches=len(matchesAgainstOpponent)
-
-        # recent 5 months
-        recentMatches=getRecentMatches(matchesAgainstOpponent,5)
-        numOfRecentMatches=len(recentMatches)
+        
 
         totalPercentageOfWins=self.findPercentageOfWins(matchesAgainstOpponent)
         recentPercentageOfWins=self.findPercentageOfWins(recentMatches)
@@ -397,17 +405,20 @@ class Player(models.Model):
             recentPercentageOfWins=0
             percentageOfWinsScore==0.2*recentPercentageOfWins+0.8*totalPercentageOfWins
 
-        if 1<=numOfTotalMatches<3:
-            return (0.1*mostRecentMatchScore+0.4*percentageOfWinsScore+0.2*activityScore
-                        +0.3*rankingScore)
-        elif totalMatches>=3:
-            return (0.1*mostRecentMatchScore+0.5*percentageOfWinsScore+0.2*activityScore
-                        +0.2*rankingScore)
+        if 1<=numOfTotalMatches < 3:
+            overallScore=scale*(0.1* mostRecentMatchScore+ 0.4* percentageOfWinsScore
+                            + 0.2* activityScore+ 0.3* rankingScore)
+            return float("{0:.2f}".format(overallScore))
+
+        elif numOfTotalMatches >= 3:
+            overallScore=(scale*(0.1* mostRecentMatchScore+ 0.5* percentageOfWinsScore
+                + 0.2*activityScore +0.2 * rankingScore))
+            return float("{0:.2f}".format(overallScore))
 
 
     def getOverallConfidenceFactor(self):
         allMatches=self.getAllMatchHistory()
-        recentMatches=getRecentMatches(allMatches,5)
+        recentMatches=self.getRecentMatches(allMatches,5)
         percentageOfWins=self.findPercentageOfWins(recentMatches)
         activity_in_five_months=self.getActivityScore(5)
         activity_in_three_months=self.getActivityScore(3)
@@ -416,19 +427,32 @@ class Player(models.Model):
         totalScore=0.6*percentageOfWins+0.4*activityScore
         scale=100
 
-        return totalScore*scale
+        return float("{0:.2f}".format(totalScore*scale))
 
 
 
-    def pointsGain(self,player,result,rankedMatches):
+    def pointsGain(self,player,winnerAndrew):
+
         pointsDifference=abs(self.points-player.points)
+        # if has no ranking points and wins
+        if self.points==0 and winnerAndrew==self.andrew:
+            # player has ranking, gain all opponent's points
+            if player.points!=0:
+                return player.points
+            # player has no ranking either, award 20 points
+            else: 
+                return 20
+
+        # if has no ranking points and loses, recieves no points
+        elif self.points==0 and winnerAndrew==player.andrew:
+            return 0
 
         # rank lower and loses, no gain no loss
-        if self.points<player.points and result[1]==player.andrew:
+        elif self.points<player.points and winnerAndrew==player.andrew:
             return 0
 
         # rank lower and wins
-        elif self.points<player.points and result[1]==self.andrew:
+        elif self.points<player.points and winnerAndrew==self.andrew:
             if pointsDifference>=100:
                 return 50
             elif 50<=pointsDifference<100:
@@ -436,14 +460,14 @@ class Player(models.Model):
             elif pointsDifference<50:
                 return 15
         # rank higher and wins
-        elif self.points>player.points and result[1]==self.andrew:
+        elif self.points>player.points and winnerAndrew==self.andrew:
             if pointsDifference<=20:
                 return 5
             else: 
                 return 0
 
         # rank higher and loses:
-        elif self.points>player.points and result[1]==player.andrew:
+        elif self.points>player.points and winnerAndrew==player.andrew:
             if pointsDifference>=100:
                 return -30
             elif 50<=pointsDifference<100:
@@ -452,11 +476,11 @@ class Player(models.Model):
                 return -10
 
         # rank same and wins:
-        elif self.points == player.points and result[1]== self.andrew:
+        elif self.points == player.points and winnerAndrew== self.andrew:
             return 10
 
         # rank same and loses:
-        elif self.points == player.points and result[1]== player.andrew:
+        elif self.points == player.points and winnerAndrew== player.andrew:
             return -5
         
         
@@ -466,7 +490,8 @@ class Player(models.Model):
 class Requirements(models.Model):
     GENDER_CHOICES=(
         ('M','Male'),
-        ('F','Female')
+        ('F','Female'),
+        ('D',"Don't Care")
 
     )
     gender=models.CharField(
@@ -595,11 +620,14 @@ class Requirements(models.Model):
 
 
             # gender
-            if player.gender==requirements['gender']:
-                weightA=importance['gender']/totalImportanceScore
-                scoreA= 1*weightA
+            weightA=importance['gender']/totalImportanceScore
+            if requirements['gender']=='D':
+                scoreA=1*weightA
             else:
-                scoreA=0
+                if player.gender==requirements['gender']:
+                    scoreA=1*weightA
+                else:
+                    scoreA=0
 
             # level
             # convert decimal to float

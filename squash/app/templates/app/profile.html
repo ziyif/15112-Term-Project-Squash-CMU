@@ -1,5 +1,7 @@
 {% extends 'app/base.html' %}
 
+{% load template_filter %}
+
 {% block title %}User Profile{% endblock %}
 
 {% block body %}
@@ -8,8 +10,12 @@
     <h1>{{ player.first_name}} {{"'s Profile"}}</h1>
     <ul>
       <li>{{'Andrew ID: '}} {{player.andrew}}</li>
+      <li>{{'Gender: '}} {{player.gender}}</li>
+      <li>{{'Phone: '}} {{player.phone}}</li>
+      <li>{{'Email: '}} {{player.email}}</li>
       <li>{{'Level: '}}{{player.level}}</li>
-
+      <li>{{'Preferred times: '}}{{preferred_times| times_in_week | join:", "}}</li>
+      
 
     </ul>
 
