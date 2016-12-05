@@ -272,6 +272,8 @@ class Player(models.Model):
         return rankedMatches
 
     def getMatchHistoryAgainstOpponent(self,player):
+        if self.matchHistoryByOpponent=="None":
+            return []
         # Format={'user1': [(20160102,'winnerAndrew',"3:1"),(20160103,'winnerAndrew','1:2')]}
         jsonDec = json.decoder.JSONDecoder()
 

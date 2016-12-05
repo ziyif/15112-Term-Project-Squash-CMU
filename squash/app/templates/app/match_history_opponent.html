@@ -7,6 +7,9 @@
   
 
     <h1>{{ player.first_name}} {{"'s Match History Against"}} {{opponent.first_name}}</h1>
+    <p>{{result}}</p>
+
+    {% if result is None %}
     <ul>
       <li>{{'Andrew ID: '}} {{player.andrew}}</li>
       <li>{{'Level: '}}{{player.level}}</li>
@@ -30,6 +33,7 @@
 
         {% endfor %}
     </ul>
+    {% endif %}
 
 
 

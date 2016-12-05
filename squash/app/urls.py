@@ -14,6 +14,8 @@ urlpatterns = [
                 views.match_history_opponent, name='match_history_opponent'),
     url(r'^enter_result$', views.enter_result, name='enter_result'),
 
+    url(r'^ladder$', views.ladder, name='ladder'),
+
     url(r'^partner$', views.partner, name='partner'),
     url(r'^signup$', views.signup, name='signup'),
     url(r'^update$', views.updateProfile, name='update'),

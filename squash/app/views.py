@@ -14,7 +14,6 @@ from .forms import NameForm, RequirementsForm,UserForm,MatchScoreForm
 from .models import Player,Requirements
 import json
 
-
 # Create your views here.
 
 def index(request):
@@ -31,6 +30,47 @@ def index(request):
     context['greetings'] = "Hi! "
     context['instructions'] = "Please log in to enjoy all features."
     return render(request, 'app/index.html', context)
+
+def rankAllPlayers(players):
+    playerPoints=[]
+    for player in players:
+        playerPoints.append((player.points,player))
+    pointsList=sorted(playerPoints,key=lambda x: x[0])
+    hightToLow=list(reversed(pointsList))
+    rankedResult=[]
+    count=1
+    prevRank=0
+    prevScore=-100
+    for i in range(len(hightToLow)):
+        score=hightToLow[i][0]
+        player=hightToLow[i][1]
+        if score==prevScore:
+            rank=prevRank
+            count+=1
+        else:
+            rank=prevRank+count
+            count=1
+            prevRank=rank
+            prevScore=score
+        rankedResult.append((rank,score,player))
+
+    return rankedResult
+
+@login_required(login_url='/login',redirect_field_name='')
+def ladder(request):
+    context={}
+    if request.user.is_authenticated():
+        try:
+
+            context = {'player_id' : request.user.player.pk,
+                        'login_status':request.user.username}
+        except:
+            context={}
+    players=Player.objects.all()
+    rankedPlayers=rankAllPlayers(players)
+    context['ladder']=rankedPlayers
+    return render(request,'app/ladder.html', context)
+
 
 @login_required(login_url='/login',redirect_field_name='')
 def enter_result(request):
@@ -53,9 +93,7 @@ def enter_result(request):
         #     context['result'] = form.get("first_name")
             user=request.user
             player=user.player
-            try:
-
-            
+            try:            
             # matchHistoryByTime
             
                 opponentAndrew=formData['opponent_andrew']
@@ -196,11 +234,15 @@ def match_history(request,player_id):
         player=Player.objects.get(pk=player_id)
         context['player']=player
         context['player_id']=request.user.player.pk
-        jsonDec = json.decoder.JSONDecoder()
-        allMatches = jsonDec.decode(player.matchHistoryByTime)
-        confidenceFactor=player.getOverallConfidenceFactor()
-        context['matches']=allMatches
-        context['confidence_factor']=confidenceFactor
+        if player.matchHistoryByTime=="None":
+            context['result']="You have no recorded matches."
+            context['confidence_factor']='Not Applicable'
+        else:
+            jsonDec = json.decoder.JSONDecoder()
+            allMatches = jsonDec.decode(player.matchHistoryByTime)
+            confidenceFactor=player.getOverallConfidenceFactor()
+            context['matches']=allMatches
+            context['confidence_factor']=confidenceFactor
         
 
     except Player.DoesNotExist:
@@ -220,16 +262,24 @@ def match_history_opponent(request,player_id,opponent_id):
     try:    
         player=Player.objects.get(pk=player_id)
         opponent=Player.objects.get(pk=opponent_id)
+
         matches=player.getMatchHistoryAgainstOpponent(opponent)
-        recent_matches=player.getRecentMatches(matches,5)
-        context['player']=player
-        context['opponent']=opponent
-        context['player_id']=request.user.player.pk
-        context['total_percent']=player.findPercentageOfWins(matches)
-        context['recent_percent']=player.findPercentageOfWins(recent_matches)
-        context['matches']=matches
-        print(player.getConfidenceFactorAgainstOpponent(opponent))
-        context['confidence_factor_against']=player.getConfidenceFactorAgainstOpponent(opponent)
+        if len(matches)==0:
+            context['player']=player
+            context['opponent']=opponent
+            context['result']="You have no recorded matches."
+            context['confidence_factor_against']='Not Applicable'
+        else:
+
+            recent_matches=player.getRecentMatches(matches,5)
+            context['player']=player
+            context['opponent']=opponent
+            context['player_id']=request.user.player.pk
+            context['total_percent']=player.findPercentageOfWins(matches)
+            context['recent_percent']=player.findPercentageOfWins(recent_matches)
+            context['matches']=matches
+            print(player.getConfidenceFactorAgainstOpponent(opponent))
+            context['confidence_factor_against']=player.getConfidenceFactorAgainstOpponent(opponent)
         
     except Player.DoesNotExist:
         raise Http404("Player does not exist")
@@ -483,12 +533,12 @@ def profile(request,player_id):
     context={}
     if request.user.is_authenticated():
         try:
-            print('haha')
+
 
             context = {'login_status':request.user.username}
 
         except:
-            print('didnt work')
+
             context={}
 
     try:

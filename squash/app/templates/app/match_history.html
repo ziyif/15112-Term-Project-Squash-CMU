@@ -5,12 +5,15 @@
 
 {% block body %}
   
-
+    
     <h1>{{ player.first_name}} {{"'s Match History"}}</h1>
+
+    <p>{{result}}</p>
+
     <ul>
       <li>{{'Andrew ID: '}} {{player.andrew}}</li>
       <li>{{'Level: '}}{{player.level}}</li>
-      <li>Ranking Points{{player.points}}</li>
+      <li>Ranking Points: {{player.points}}</li>
       <li>Confidence Factor: {{confidence_factor}}</li>
     </ul>
 
