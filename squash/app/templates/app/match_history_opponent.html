@@ -11,6 +11,9 @@
 
     {% if result is None %}
 
+      <li><u><a href="/user/{{opponent.id}}">View Player Profile</a></u></li>
+
+      <p> <h4 class='orange-text'> * Confidence Factor Against {{opponent.first_name}} : {{confidence_factor_against}}</h4> </p> 
 
       <div class="row">
         <div class="col s12 m6">
@@ -35,7 +38,7 @@
               <span class="card-title">You vs. {{opponent.first_name}}</span>
               <li>total % of matches won: {{total_percent}}%</li>
               <li>% of matches won in the last 5 months: {{recent_percent}}%</li>
-              <li>* Your Confidence Factor: {{confidence_factor_against}} </li>
+              <!-- <li>* Your Confidence Factor: {{confidence_factor_against}} </li> -->
             </div>
             <!-- <div class="card-action">
               <a href="#">This is a link</a>
@@ -76,7 +79,9 @@
           {% for a,b,c,d,e,f,g,h in matches %}
           <tr>
             <td>{{a}} </td>
-            <td>{{c}}({{b}}) </td>
+            <td>
+             {% if b != opponent.andrew %} <div class='green-text'>{% endif %}
+                  {{c}}({{b}}) {% if b != opponent.andrew %}</div>{% endif %}</td>
             <td>{{d}} </td>
             <td>{{e}}</td>
             <td>{{f}} </td>

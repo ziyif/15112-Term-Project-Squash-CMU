@@ -10,7 +10,7 @@
 
     <p>{{result}}</p>
 
-
+    <p> <h4 class='orange-text'> * Confidence Factor: {{confidence_factor}}</h4> </p> 
     <div class="row">
       <div class="col s12 m6">
         <div class="card blue-grey darken-1">
@@ -21,7 +21,7 @@
             <li> Total Matches: {{totalMatches}}</li>
             <li> Total Matches Won: {{numOfWins}}</li>
             <li> Matches played in the last 3 months: {{recentMatches}}</li>
-            <li>* Confidence Factor: {{confidence_factor}}</li>
+            <!-- <li>* Confidence Factor: {{confidence_factor}}</li> -->
           </div>
           <!-- <div class="card-action">
             <a href="#">This is a link</a>
@@ -53,8 +53,10 @@
         <tr>
           <td>{{a}} </td>
           <td><a href="/match_history_opponent/{{player.id}}/{{e}}">
-            {{f}} {{g}}</a> </td>
-          <td>{{c}}({{b}}) </td>
+            <u>{{f}} {{g}}</u></a> </td>
+
+          <td>{% if b != opponent.andrew %} <div class='green-text'>{% endif %}
+              {{c}}({{b}}) {% if b != opponent.andrew %} </div>{% endif %}</td>
           <td>{{h}} </td>
           <td>{{i}}</td>
           <td>{{j}} </td>

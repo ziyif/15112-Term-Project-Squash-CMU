@@ -27,7 +27,7 @@ def index(request):
                         'login_status':request.user.player.first_name}
         except:
             context={}
-    context['greetings'] = "Hi! "
+    context['greetings'] = "Welcom!"
     context['instructions'] = "Please log in to enjoy all features."
     return render(request, 'app/index.html', context)
 
@@ -55,7 +55,13 @@ def rankAllPlayers(players):
         rankedResult.append((rank,score,player))
 
     return rankedResult
-
+def getRank(player,rankedPlayers):
+    for person in rankedPlayers:
+        if person[2]==player:
+            return person[0]
+    
+    return None
+    
 @login_required(login_url='/login',redirect_field_name='')
 def ladder(request):
     context={}
@@ -66,9 +72,12 @@ def ladder(request):
                         'login_status':request.user.player.first_name}
         except:
             context={}
+    player=request.user.player
+
     players=Player.objects.all()
     rankedPlayers=rankAllPlayers(players)
     context['ladder']=rankedPlayers
+    context['rank']=getRank(player,rankedPlayers)
     return render(request,'app/ladder.html', context)
 
 

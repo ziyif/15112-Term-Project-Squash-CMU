@@ -14,7 +14,7 @@
                 {% for playerKey, playerInfo in players.items %}
                     
                     <li> Rank: {{rank}}  Player Name:  {{playerKey}} {{playerInfo.player.last_name}}  </li>
-                    <li><a href="/user/{{playerInfo.player.id}}">View Player Profile</a></li>
+                    <u><li><a href="/user/{{playerInfo.player.id}}">View Player Profile</a></li></u>
                     <li> Gender: {{playerInfo.player.gender}} </li>
                     <li> Email: {{playerInfo.player.email}} </li>
                     <li> Phone Number: {{playerInfo.player.phone}} </li>
@@ -24,7 +24,7 @@
 
                         {{playerInfo.commonTimes | times_in_week | join:", "}} </li>
                     
-                    <li> {{'Match Score: '}}{{playerInfo.score}}</li>
+                    <li> Percent Match: {{playerInfo.score}}</li>
                     <br/>
                 {% endfor %}
             {% endfor %}

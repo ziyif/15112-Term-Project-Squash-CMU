@@ -10,6 +10,8 @@
 
         <h1>Ladder</h1>
 
+         <p> Your Rank: {{rank}}</p> 
+
 
         <table class="centered">
 
@@ -28,8 +30,8 @@
                     <td> {{x}} </td>
                     {% if player_id != z.id %}
                     <td>
-                    <a href="/match_history_opponent/{{player_id}}/{{z.id}}">
-                        {{z.first_name}} {{z.last_name}} </a>
+                    <u><a href="/match_history_opponent/{{player_id}}/{{z.id}}">
+                        {{z.first_name}} {{z.last_name}} </a></u>
                     </td>
                     {% else %}
                     <td> {{z.first_name}} {{z.last_name}} </td>
