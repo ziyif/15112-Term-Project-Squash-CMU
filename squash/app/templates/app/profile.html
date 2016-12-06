@@ -6,21 +6,25 @@
 
 {% block body %}
   
-
+    <div class="container">
     <h1>{{ player.first_name}} {{"'s Profile"}}</h1>
     <ul>
-      <li>{{'Andrew ID: '}} {{player.andrew}}</li>
-      <li>{{'Gender: '}} {{player.gender}}</li>
-      <li>{{'Phone: '}} {{player.phone}}</li>
-      <li>{{'Email: '}} {{player.email}}</li>
-      <li>{{'Level: '}}{{player.level}}</li>
-      <li>{{'Preferred times: '}}{{preferred_times| times_in_week | join:", "}}</li>
+
+      <li><i class="material-icons">perm_identity</i> {{'Andrew ID: '}} {{player.andrew}}</li>
+      <li><i class="material-icons">person_pin</i> {{'Gender: '}} {{player.gender}}</li>
+      <li><i class="material-icons">phone</i> {{'Phone: '}} {{player.phone}}</li>
+      <li><i class="material-icons">email</i> {{'Email: '}} {{player.email}}</li>
+      <li><i class="material-icons">description</i> Skill Level{{player.level}}</li>
+      <li><i class="material-icons">perm_contact_calendar</i> {{'Preferred times: '}}{{preferred_times| times_in_week | join:", "}}</li>
       
 
     </ul>
 
+    {% if allowUpdate != None %}
     <a onclick="location.href='/update';"
-              class="waves-effect waves-light btn-large">Update Profile</a>
+              class="waves-effect waves-light btn">Update Profile</a>
+    {% endif %}
+    </div>
 
 
 {% endblock %}

@@ -5,42 +5,98 @@
 
 {% block body %}
   
-
-    <h1>{{ player.first_name}} {{"'s Match History Against"}} {{opponent.first_name}}</h1>
+    <div class="container">
+    <h3>{{ player.first_name}} {{"'s Match History Against"}} {{opponent.first_name}}</h3>
     <p>{{result}}</p>
 
     {% if result is None %}
-    <ul>
-      <li>{{'Andrew ID: '}} {{player.andrew}}</li>
-      <li>{{'Level: '}}{{player.level}}</li>
 
-      <li>Opponent's Name: {{opponent.first_name}} {{opponent.last_name}}</li>
-      <li>Opponent's Andrew ID: {{opponent.andrew}}</li>
-      <li>{{'Level: '}}{{opponent.level}}</li>
-      <li>Percentage of matches won against Opponent: {{total_percent}} Percent</li>
-      <li>Percentage of matches won against Opponent in the last 5 months: {{recent_percent}} Percent</li>
-      <li>Confidence Factor against Opponent: {{confidence_factor_against}}</li>
-    </ul>
 
-    <ul>
-        <li>Match History Against {{opponent.first_name}} {{opponent.last_name}}
-        </li>
-        {% for a,b,c,d,e,f,g,h in matches %}
-          <li>Date: {{a}}  Winner: {{c}}({{b}}) Score: {{d}} Points Gained {{e}} 
-          Opponent's Points Gained {{f}}</li>
-          <li>Your Points after Match:{{g}}</li>
-          <li>Opponent's Points After Match {{h}}</li>
+      <div class="row">
+        <div class="col s12 m6">
+          <div class="card blue-grey darken-1">
+            <div class="card-content white-text">
+              <span class="card-title">Opponent Basic Info</span>
+              <li>Name: {{opponent.first_name}} {{opponent.last_name}}</li>
+              <li>Andrew ID: {{opponent.andrew}}</li>
+              <li>Level: {{opponent.level}}</li>
+            </div>
+            <!-- <div class="card-action">
+              <a href="#">This is a link</a>
+              <a href="#">This is a link</a> -->
+          </div>
+        </div>
+      </div>
 
-        {% endfor %}
-    </ul>
+      <div class="row">
+        <div class="col s12 m6">
+          <div class="card blue-grey darken-1">
+            <div class="card-content white-text">
+              <span class="card-title">You vs. {{opponent.first_name}}</span>
+              <li>total % of matches won: {{total_percent}}%</li>
+              <li>% of matches won in the last 5 months: {{recent_percent}}%</li>
+              <li>* Your Confidence Factor: {{confidence_factor_against}} </li>
+            </div>
+            <!-- <div class="card-action">
+              <a href="#">This is a link</a>
+              <a href="#">This is a link</a> -->
+          </div>
+        </div>
+      </div>
+
+      <p class="blue-text text-darken-2"> * Confidence Factor is calculated based on ranking points, recent activity and match results against this opponent</p>
+
+
+<!-- 
+      <ul>
+      
+        <li>Percentage of matches won against Opponent: {{total_percent}} Percent</li>
+        <li>Percentage of matches won against Opponent in the last 5 months: {{recent_percent}} Percent</li>
+        <li>Confidence Factor against Opponent: {{confidence_factor_against}}</li>
+        <p class="blue-text text-darken-2">Confidence Factor is calculated based on ranking points, recent activity and match results against this opponent</p>
+      </ul> -->
+
+      <h5>Match History</h5>
+
+      <table class="centered">
+
+        <thead>
+          <tr>
+            <th data-field="1">Date</th>
+            <th data-field="2">Winner</th>
+            <th data-field="3">Score</th>
+            <th data-field="4">Points Gained</th>
+            <th data-field="5">Opponent Points Gained</th>
+            <th data-field="6">Your Points After Match</th>
+            <th data-field="7">Opponent's Points After Match</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for a,b,c,d,e,f,g,h in matches %}
+          <tr>
+            <td>{{a}} </td>
+            <td>{{c}}({{b}}) </td>
+            <td>{{d}} </td>
+            <td>{{e}}</td>
+            <td>{{f}} </td>
+            <td>{{g}} </td>
+            <td>{{h}} </td>
+          </tr>
+
+          {% endfor %}
+
+        </tbody>
+      </table>
+
+
     {% endif %}
-
-
-
     <div class="row">
     <a onclick="location.href='/enter_result';"
               class="waves-effect waves-light btn-large">Enter Match Result</a>
     </div>
+    </div>
+
 
 
 {% endblock %}

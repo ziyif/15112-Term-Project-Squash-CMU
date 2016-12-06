@@ -24,7 +24,7 @@ def index(request):
         try:
 
             context = {'player_id' : request.user.player.pk,
-                        'login_status':request.user.username}
+                        'login_status':request.user.player.first_name}
         except:
             context={}
     context['greetings'] = "Hi! "
@@ -63,7 +63,7 @@ def ladder(request):
         try:
 
             context = {'player_id' : request.user.player.pk,
-                        'login_status':request.user.username}
+                        'login_status':request.user.player.first_name}
         except:
             context={}
     players=Player.objects.all()
@@ -78,7 +78,7 @@ def enter_result(request):
         try:
 
             context = {'player_id' : request.user.player.pk,
-                        'login_status':request.user.username}
+                        'login_status':request.user.player.first_name}
         except:
             context={}
     # if this is a POST request we need to process the form data
@@ -227,7 +227,8 @@ def match_history(request,player_id):
     context={}
     if request.user.is_authenticated():
         try:
-            context = {'login_status':request.user.username}
+            context = {'player_id' : request.user.player.pk,
+                        'login_status':request.user.player.first_name}
         except:
             context={}
     try:
@@ -242,6 +243,11 @@ def match_history(request,player_id):
             allMatches = jsonDec.decode(player.matchHistoryByTime)
             confidenceFactor=player.getOverallConfidenceFactor()
             context['matches']=allMatches
+
+            context['totalMatches']=len(allMatches)
+            context['numOfWins']=player.findNumOfWins(allMatches)
+            recentMatches=player.getRecentMatches(allMatches,3)
+            context['recentMatches']=len(recentMatches)
             context['confidence_factor']=confidenceFactor
         
 
@@ -254,7 +260,8 @@ def match_history_opponent(request,player_id,opponent_id):
     context={}
     if request.user.is_authenticated():
         try:
-            context = {'login_status':request.user.username}
+            context = {'player_id' : request.user.player.pk,
+                        'login_status':request.user.player.first_name}
 
         except:
             context={}
@@ -275,8 +282,8 @@ def match_history_opponent(request,player_id,opponent_id):
             context['player']=player
             context['opponent']=opponent
             context['player_id']=request.user.player.pk
-            context['total_percent']=player.findPercentageOfWins(matches)
-            context['recent_percent']=player.findPercentageOfWins(recent_matches)
+            context['total_percent']=int(100*(player.findPercentageOfWins(matches)))
+            context['recent_percent']=int(100*(player.findPercentageOfWins(recent_matches)))
             context['matches']=matches
             print(player.getConfidenceFactorAgainstOpponent(opponent))
             context['confidence_factor_against']=player.getConfidenceFactorAgainstOpponent(opponent)
@@ -292,7 +299,7 @@ def partner(request):
         try:
 
             context = {'player_id' : request.user.player.pk,
-                        'login_status':request.user.username}
+                        'login_status':request.user.player.first_name}
         except:
             context={}
     # context={'player_id': request.user.player.pk}
@@ -354,7 +361,7 @@ def updateProfile(request):
         try:
 
             context = {'player_id' : request.user.player.pk,
-                        'login_status':request.user.username}
+                        'login_status':request.user.player.first_name}
         except:
             context={}
 
@@ -411,7 +418,7 @@ def filter(request):
         try:
 
             context = {'player_id' : request.user.player.pk,
-                        'login_status':request.user.username}
+                        'login_status':request.user.player.first_name}
         except:
             context={}
     # context= {'player_id': request.user.player.pk}
@@ -427,7 +434,7 @@ def filter(request):
 #         try:
 
 #             context = {'player_id' : request.user.player.pk,
-#                         'login_status':request.user.username}
+#                         'login_status':request.user.player.first_name}
 #         except:
 #             context={}
 #     # context= {'player_id': request.user.player.pk}
@@ -441,7 +448,7 @@ def match_result(request):
         try:
 
             context = {'player_id' : request.user.player.pk,
-                        'login_status':request.user.username}
+                        'login_status':request.user.player.first_name}
             curPlayer=request.user.player
         except:
             context={}
@@ -535,15 +542,19 @@ def profile(request,player_id):
         try:
 
 
-            context = {'login_status':request.user.username}
+            context = {'login_status':request.user.player.first_name}
 
         except:
 
             context={}
 
     try:
-        
         player=Player.objects.get(pk=player_id)
+        if request.user.player==player:
+
+            context['allowUpdate']=True
+
+        
         context['player']=player
         context['player_id']=request.user.player.pk
         jsonDec = json.decoder.JSONDecoder()
@@ -551,8 +562,6 @@ def profile(request,player_id):
         timesSet=set(timesList)
         context['preferred_times']=timesSet
         
-
-
         
     
     except Player.DoesNotExist:

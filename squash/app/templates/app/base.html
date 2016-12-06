@@ -17,31 +17,30 @@
     <!-- The navigation bar -->
     <nav>
       <div class="nav-wrapper">
-        <a href="#" class="brand-logo">Squash CMU</a>
+        <a href="/" class="brand-logo">Squash CMU</a>
         <ul id="nav-mobile" class="right hide-on-med-and-down">
 
-          <li><a href="/">Home</a></li>
+          
           {% if login_status is None %}
           <li><a href="/login">Login</a></li>
           <li><a href="/register">Register</a></li>
           {% endif %}
           <!-- <li><a href="/player-form">Player Form</a></li> -->
-          {% if player_id != None %}
-          <li><a href="/user/{{player_id}}">Your Profile</a></li>
-          {% endif %}
-
+        
           {% if player_id != None %}
           <li><a href="/enter_result">Enter Match Result</a></li>
           <li><a href="/match_history/{{player_id}}">View Match History</a></li>
+
           {% endif %}
 
-          <!-- <li><a href="/signup">Sign Up</a></li> -->
+        
           <li><a href="/partner">Find a Partner</a></li>
 
-
-          <!-- <li><a href="/court">Find a Court</a></li> -->
+        
           <li><a href="/ladder">Ladder</a></li>
           {% if login_status != None %}
+          
+          <li><a href="/user/{{player_id}}">Your Profile</a></li>
           <li><a href="/logout">Logout</a></li>
           {% endif %}
           
@@ -51,17 +50,30 @@
       </div>
     </nav>
 
-    {% if login_status != None %}
-      <li>{{'Hi, '}}{{login_status}}</li>
-    {% endif %}
-
 
 
     <!--Import jQuery before materialize.js-->
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
 
+     <div class="parallax-container" style="height: 300px">
+     <div class="container">
+      
+     {% if login_status != None %}
+     <h1 class="white-text"> Hi, {{login_status}} </h1>
+     {% endif %}
+     </div>
+     <!-- image taken from http://www.wisegeek.com/what-is-the-sport-of-squash.htm -->
+      <div class="parallax"><img src="/static/images/squash-ball-with-racket.jpg"></div>
+    </div>
+
+    <script>
+    $(document).ready(function(){
+      $('.parallax').parallax();
+    });
+    </script>
     {% block body %}
+
     {% endblock %}
   </body>
 </html>

@@ -5,36 +5,88 @@
 
 {% block body %}
   
-    
+    <div class="container">
     <h1>{{ player.first_name}} {{"'s Match History"}}</h1>
 
     <p>{{result}}</p>
 
-    <ul>
-      <li>{{'Andrew ID: '}} {{player.andrew}}</li>
-      <li>{{'Level: '}}{{player.level}}</li>
-      <li>Ranking Points: {{player.points}}</li>
-      <li>Confidence Factor: {{confidence_factor}}</li>
-    </ul>
 
-    <ul>
+    <div class="row">
+      <div class="col s12 m6">
+        <div class="card blue-grey darken-1">
+          <div class="card-content white-text">
+            <span class="card-title">Basic Info</span>
+            <li>Skill Level: {{player.level}}</li>
+            <li>Ranking Points: {{player.points}}</li>
+            <li> Total Matches: {{totalMatches}}</li>
+            <li> Total Matches Won: {{numOfWins}}</li>
+            <li> Matches played in the last 3 months: {{recentMatches}}</li>
+            <li>* Confidence Factor: {{confidence_factor}}</li>
+          </div>
+          <!-- <div class="card-action">
+            <a href="#">This is a link</a>
+            <a href="#">This is a link</a> -->
+        </div>
+      </div>
+    </div>
+
+    <p class="blue-text text-darken-2"> *Confidence Factor is calculated based on recent activity and match results</p>
+
+
+    <table class="centered">
+
+      <thead>
+        <tr>
+          <th data-field="1">Date</th>
+          <th data-field="2">Opponent</th>
+          <th data-field="3">Winner</th>
+          <th data-field="4">Score</th>
+          <th data-field="5">Points Gained</th>
+          <th data-field="6">Opponent Points Gained</th>
+          <th data-field="7">Your Points After Match</th>
+          <th data-field="8">Opponent's Points After Match</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for a,b,c,d,e,f,g,h,i,j,k,l in matches %}
+        <tr>
+          <td>{{a}} </td>
+          <td><a href="/match_history_opponent/{{player.id}}/{{e}}">
+            {{f}} {{g}}</a> </td>
+          <td>{{c}}({{b}}) </td>
+          <td>{{h}} </td>
+          <td>{{i}}</td>
+          <td>{{j}} </td>
+          <td>{{k}} </td>
+          <td>{{l}} </td>
+        </tr>
+
+        {% endfor %}
+
+      </tbody>
+    </table>
+
+<!--     <ul>
         {% for a,b,c,d,e,f,g,h,i,j,k,l in matches %}
           <li>Date: {{a}} </li>
           <li>Against: <a href="/match_history_opponent/{{player.id}}/{{e}}">
             {{f}} {{g}}</a> </li>
           <li>Winner: {{c}}({{b}})</li>
           <li>Score: {{h}}</li>
-          <li>Points Gained {{i}}  Opponent's Points Gained {{j}} </li>
-          <li>Your Points after Match:{{k}}</li>
-          <li>Opponent's Points After Match{{l}}</li>
+          <li>Points Gained: {{i}}</li>  
+          <li>Opponent's Points Gained: {{j}} </li>
+          <li>Your Points after Match: {{k}}</li>
+          <li>Opponent's Points After Match: {{l}}</li>
         {% endfor %}
-    </ul>
+    </ul> -->
 
 
 
     <div class="row">
     <a onclick="location.href='/enter_result';"
               class="waves-effect waves-light btn-large">Enter Match Result</a>
+    </div>
     </div>
 
 

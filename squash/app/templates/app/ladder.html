@@ -7,8 +7,43 @@
 
     
     <div class="container">
+
         <h1>Ladder</h1>
-        <ul>
+
+
+        <table class="centered">
+
+            <thead>
+                <tr>
+                    <th data-field="rank">Rank</th>
+                    <th data-field="name">Name</th>
+                    <th data-field="points">Points</th>
+                </tr>
+            </thead>
+
+            <tbody>
+          
+                {% for x,y,z in ladder %}
+                <tr>
+                    <td> {{x}} </td>
+                    {% if player_id != z.id %}
+                    <td>
+                    <a href="/match_history_opponent/{{player_id}}/{{z.id}}">
+                        {{z.first_name}} {{z.last_name}} </a>
+                    </td>
+                    {% else %}
+                    <td> {{z.first_name}} {{z.last_name}} </td>
+                    {% endif %}
+                    <td> {{y}} </td>
+                </tr>
+                {% endfor %}
+
+            </tbody>
+        </table>
+
+
+
+    <!--     <ul>
             {% for x,y,z in ladder %}
                 {% if player_id != z.id %}
                 <li>Rank {{x}} <a href="/match_history_opponent/{{player_id}}/{{z.id}}">{{z}}</a> {{y}}</li>
@@ -18,7 +53,7 @@
                 {% endif %}
             {% endfor %}
       
-        </ul>
+        </ul> -->
 
     </div>
 

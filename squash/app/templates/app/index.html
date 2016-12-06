@@ -1,7 +1,106 @@
 {% extends 'app/base.html' %}
 
 
-
+{% load static %}
 {% block body %}
-  <h1>{{ greetings }} {{ instructions }}</h1>
+
+<div class="container">
+{% if login_status is None %}
+<h5>{{ greetings }} {{ instructions }}</h5>
+{% endif %}
+
+<div><br/><br/></div>
+<div class="row">
+
+        <div class="col s12 m3">
+          <div class="card">
+            <div class="card-image">
+              <img src="/static/images/partner.jpg", style="height: 150px">
+              <span class="card-title">Find A Buddy</span>
+            </div>
+            <div class="card-content">
+              <p>I am a very simple card. I am good at containing small bits of information.
+              I am convenient because I require little markup to use effectively.</p>
+            </div>
+            <div class="card-action">
+              <a href="/partner">Find a Partner</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="col s12 m3">
+          <div class="card">
+            <div class="card-image">
+              <img src="/static/images/match.jpg", style="height: 150px">
+              <span class="card-title">Play Games</span>
+            </div>
+            <div class="card-content">
+              <p>I am a very simple card. I am good at containing small bits of information.
+              I am convenient because I require little markup to use effectively.</p>
+            </div>
+            {% if login_status != None %}
+            <div class="card-action">
+              <a href="/match_history/{{player_id}}">View My Matches</a>
+            </div>
+            {% else %}
+            <div class="card-action">
+              <a href="/login">Please Login To Enjoy This Feature</a>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+
+        <div class="col s12 m3">
+          <div class="card">
+            <div class="card-image">
+              <img src="/static/images/opponent.jpg", style="height: 150px">
+              <span class="card-title"></span>
+            </div>
+            <div class="card-content">
+              <p>I am a very simple card. I am good at containing small bits of information.
+              I am convenient because I require little markup to use effectively.</p>
+            </div>
+            {% if login_status != None %}
+            <div class="card-action">
+              <a href="/match_history/{{player_id}}">View My Opponents</a>
+            </div>
+            {% else %}
+            <div class="card-action">
+              <a href="/login">Please Login To Enjoy This Feature</a>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="col s12 m3">
+          <div class="card">
+            <div class="card-image">
+              <img src="/static/images/ladder.jpg", style="height: 150px">
+              <span class="card-title"><div class="black-text">Climb Up the Ladder</div></span>
+            </div>
+            <div class="card-content">
+              <p>I am a very simple card. I am good at containing small bits of information.
+              I am convenient because I require little markup to use effectively.</p>
+            </div>
+            {% if login_status != None %}
+            <div class="card-action">
+              <a href="/ladder">Go To Ladder</a>
+            </div>
+            {% else %}
+            <div class="card-action">
+              <a href="/login">Please Login To Enjoy This Feature</a>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+
+
+</div>
+
+
+
+
+</div>
 {% endblock %}

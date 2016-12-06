@@ -293,7 +293,7 @@ class Player(models.Model):
         rankedMatches=rankedMatches[::-1]
         return rankedMatches
 
-    def findPercentageOfWins(self,matches):
+    def findNumOfWins(self,matches):
         totalMatches=len(matches)
         numOfWin=0
         if totalMatches==0:
@@ -301,6 +301,11 @@ class Player(models.Model):
         for match in matches:
             if match[1]==self.andrew:
                 numOfWin+=1
+        return numOfWin
+
+    def findPercentageOfWins(self,matches):
+        totalMatches=len(matches)
+        numOfWin=self.findNumOfWins(matches)
         return numOfWin/totalMatches
 
     def getDate(self):
