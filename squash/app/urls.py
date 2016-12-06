@@ -14,6 +14,13 @@ urlpatterns = [
                 views.match_history_opponent, name='match_history_opponent'),
     url(r'^enter_result$', views.enter_result, name='enter_result'),
 
+
+    url(r'^success$', views.success, name='success'),
+    url(r'^result_confirmation$', views.result_confirmation, name='result_confirmation'),
+
+
+
+
     url(r'^ladder$', views.ladder, name='ladder'),
 
     url(r'^partner$', views.partner, name='partner'),

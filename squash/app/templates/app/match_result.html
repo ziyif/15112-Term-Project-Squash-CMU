@@ -8,7 +8,57 @@
   
     <div class="container">
         <p> We Found {{matchesFound}} Results </p>
-        <ul>
+
+
+
+    <table class="centered">
+
+      <thead>
+        <tr>
+          <th data-field="1">Rank</th>
+          <th data-field="2">Name</th>
+          <th data-field="3">Gender</th>
+          <th data-field="4">Email</th>
+          <th data-field="5">Phone</th>
+          <th data-field="6">Skill Level</th>
+            <th data-field="7">Ranking Points</th>
+          <th data-field="8">Common Times</th>
+          <th data-field="9">Percent Match</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for rank, players in partners.items %}
+            
+            {% for playerKey, playerInfo in players.items %}
+
+        <tr>
+          <td>{{rank}} </td>
+          <td><u><a href="/user/{{playerInfo.player.id}}">{{playerKey}} {{playerInfo.player.last_name}}</a></u></td>
+          <td> {{playerInfo.player.gender}}</td>
+          <td> {{playerInfo.player.email}} </td>
+          
+          <td> {{playerInfo.player.phone}}</td>
+          <td> {{playerInfo.player.level}} </td>
+          <td> {{playerInfo.player.points}} </td>
+          <td> {% for time in playerInfo.commonTimes %}
+                <li>{{time | time_in_week}}</li>
+                {% endfor %}
+          <!-- {{playerInfo.commonTimes | times_in_week | join:", "}} -->
+          </td>
+          <td> {{playerInfo.score}}</td>
+
+        </tr>
+
+        {% endfor %}
+    {% endfor %}
+
+      </tbody>
+    </table>
+
+
+
+       <!--  <ul>
             {% for rank, players in partners.items %}
             
                 {% for playerKey, playerInfo in players.items %}
@@ -28,7 +78,7 @@
                     <br/>
                 {% endfor %}
             {% endfor %}
-        </ul>
+        </ul> -->
     </div>
 
 

@@ -27,18 +27,18 @@
           {% endif %}
           <!-- <li><a href="/player-form">Player Form</a></li> -->
         
-          {% if player_id != None %}
-          <li><a href="/enter_result">Enter Match Result</a></li>
-          <li><a href="/match_history/{{player_id}}">View Match History</a></li>
+         <!--  {% if player_id != None %}
+          
 
-          {% endif %}
+          {% endif %} -->
 
-        
+          {% if login_status != None %}
           <li><a href="/partner">Find a Partner</a></li>
 
-        
+          <li><a href="/enter_result">Enter Match Result</a></li>
+          <li><a href="/match_history/{{player_id}}">View Match History</a></li>
           <li><a href="/ladder">Ladder</a></li>
-          {% if login_status != None %}
+          
           
           <li><a href="/user/{{player_id}}">Your Profile</a></li>
           <li><a href="/logout">Logout</a></li>

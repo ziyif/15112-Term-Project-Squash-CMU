@@ -1,0 +1,24 @@
+{% extends 'app/base.html' %}
+
+{% block title %}Match Result{% endblock %}
+
+{% block body %}
+
+
+    <div class="container">
+
+            <p> Success! </p>
+            <p> You Gained: {{selfGain}}</p>
+
+
+
+            <div class="row">
+                    <a onclick="location.href='/match_history/{{player_id}}';"
+                    class="waves-effect waves-light btn">View Match History</a>
+
+
+        
+            </div>
+    </div>
+
+{% endblock %}

@@ -18,12 +18,19 @@
               <img src="/static/images/partner.jpg", style="height: 150px">
               <span class="card-title">Find A Buddy</span>
             </div>
-            <div class="card-content">
-              <p>I am a very simple card. I am good at containing small bits of information.
-              I am convenient because I require little markup to use effectively.</p>
+            <div class="card-content", style="height: 220px">
+              <p>Find a partner according to skill level,
+              common free time, how often you would like to play, and other preferences.</p>
+              <p>We provide two ways to find a partner:</p>
+              <li>Manual Match</li>
+              <li>Auto Match</li>
             </div>
             <div class="card-action">
+            {% if login_status != None %}
               <a href="/partner">Find a Partner</a>
+            {% else %}
+              <a href="/login">Please Login To Enjoy This Feature</a>
+            {% endif %}
             </div>
           </div>
         </div>
@@ -34,19 +41,17 @@
               <img src="/static/images/match.jpg", style="height: 150px">
               <span class="card-title">Play Games</span>
             </div>
-            <div class="card-content">
-              <p>I am a very simple card. I am good at containing small bits of information.
-              I am convenient because I require little markup to use effectively.</p>
+            <div class="card-content", style="height: 220px">
+              <p>Play games and record your match results.</p>
             </div>
+            
+            <div class="card-action">
             {% if login_status != None %}
-            <div class="card-action">
-              <a href="/match_history/{{player_id}}">View My Matches</a>
-            </div>
+              <a href="/enter_result">Enter Match Results</a>
             {% else %}
-            <div class="card-action">
               <a href="/login">Please Login To Enjoy This Feature</a>
-            </div>
             {% endif %}
+            </div>
           </div>
         </div>
 
@@ -54,44 +59,42 @@
         <div class="col s12 m3">
           <div class="card">
             <div class="card-image">
-              <img src="/static/images/opponent.jpg", style="height: 150px">
-              <span class="card-title"></span>
+              <img src="/static/images/squash-data.png", style="height: 150px">
+              <span class="card-title"><div class="black-text", style="font-weight:bold">View Match Data</div></span>
             </div>
-            <div class="card-content">
-              <p>I am a very simple card. I am good at containing small bits of information.
-              I am convenient because I require little markup to use effectively.</p>
+            <div class="card-content", style="height: 220px">
+              <p>View your match history, confidence factor and know your 
+                status and progress 
+              as a squash player.</p>
             </div>
+            
+            <div class="card-action">
             {% if login_status != None %}
-            <div class="card-action">
-              <a href="/match_history/{{player_id}}">View My Opponents</a>
-            </div>
+              <a href="/match_history/{{player_id}}">View Match History</a>
             {% else %}
-            <div class="card-action">
               <a href="/login">Please Login To Enjoy This Feature</a>
-            </div>
             {% endif %}
+            </div>
           </div>
         </div>
 
         <div class="col s12 m3">
-          <div class="card">
+          <div class="card" >
             <div class="card-image">
               <img src="/static/images/ladder.jpg", style="height: 150px">
-              <span class="card-title"><div class="black-text">Climb Up the Ladder</div></span>
+              <span class="card-title"><div class="black-text", style="font-weight:bold">Climb the Ladder</div></span>
             </div>
-            <div class="card-content">
-              <p>I am a very simple card. I am good at containing small bits of information.
-              I am convenient because I require little markup to use effectively.</p>
+            <div class="card-content", style="height: 220px">
+              <p>View the school Ladder and climb your way up!</p>
             </div>
+            <div class="card-action">
             {% if login_status != None %}
-            <div class="card-action">
               <a href="/ladder">Go To Ladder</a>
-            </div>
             {% else %}
-            <div class="card-action">
               <a href="/login">Please Login To Enjoy This Feature</a>
-            </div>
+            
             {% endif %}
+            </div>
           </div>
         </div>
 
