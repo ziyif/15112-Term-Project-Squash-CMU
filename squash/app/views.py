@@ -134,147 +134,13 @@ def result_confirmation(request):
         except:
             context={}
     formData=request.session['matchFormData']
-    if request.method == 'POST':
-            print("haha")
-            formData=request.session['matchFormData']
-            # create a form instance and populate it with data from the request:
-            # form = MatchScoreForm(request.POST)
+    context['date']=formData['match_date']
+    context['opponent_andrew']=formData['opponent_andrew']
+    context['winner']=formData['winner_andrew']
+    context['score']=formData['match_score']
+  
 
-            # check whether it's valid:
-            #     context['result'] = form.get("first_name")
-            user=request.user
-            player=user.player
-            try:            
-            # matchHistoryByTime
-            
-                opponentAndrew=formData['opponent_andrew']
-                opponent=Player.objects.get(andrew=opponentAndrew)
-                winnerAndrew=formData['winner_andrew']
-                winner=Player.objects.get(andrew=winnerAndrew)
-
-                # update ranking points
-                selfGain=player.pointsGain(opponent,winnerAndrew)
-                opponentGain=opponent.pointsGain(player,winnerAndrew)
-
-                player.points+=selfGain
-                opponent.points+=opponentGain
-
-                matchResultForPlayer=(formData['match_date'],
-                                        winnerAndrew,
-                                        winner.first_name,
-                                        opponentAndrew,
-                                        opponent.id,
-                                        opponent.first_name,
-                                        opponent.last_name,
-                                        formData['match_score'],
-                                        selfGain,
-                                        opponentGain,
-                                        player.points,
-                                        opponent.points
-                                        )
-
-                matchResultForOpponent=(formData['match_date'],
-                                        winnerAndrew,
-                                        winner.first_name,
-                                        player.andrew,
-                                        player.id,
-                                        player.first_name,
-                                        player.last_name,
-                                        formData['match_score'],
-                                        opponentGain,
-                                        selfGain,
-                                        opponent.points,
-                                        player.points
-                                        )
-
-                # update user's match history
-                if player.matchHistoryByTime == "None":
-                    allMatches=[]
-                else:
-                    jsonDec = json.decoder.JSONDecoder()
-                    allMatches = jsonDec.decode(player.matchHistoryByTime)
-
-                allMatches.append(matchResultForPlayer)
-
-                player.matchHistoryByTime=json.dumps(allMatches)
-                
-                # update opponent's Match History
-                if opponent.matchHistoryByTime == "None":
-                    opponentMatches =[]
-                else:
-                    jsonDec = json.decoder.JSONDecoder()
-                    opponentMatches = jsonDec.decode(opponent.matchHistoryByTime)
-
-                opponentMatches.append(matchResultForOpponent)
-
-                opponent.matchHistoryByTime=json.dumps(opponentMatches)
-
-                # matchHistoryByOpponent
-
-                selfMatchInfo=(formData['match_date'],
-                                winnerAndrew,
-                                winner.first_name,
-                                formData['match_score'],
-                                selfGain,
-                                opponentGain,
-                                player.points,
-                                opponent.points
-                                )
-                opponentMatchInfo=(formData['match_date'],
-                                    winnerAndrew,
-                                    winner.first_name,
-                                    formData['match_score'],
-                                    opponentGain,
-                                    selfGain,
-                                    opponent.points,
-                                    player.points
-                                    )
-
-                # update for user
-                if player.matchHistoryByOpponent== "None":
-                    matchesDict=dict()
-                else:
-                    jsonDec = json.decoder.JSONDecoder()
-                    matchesDict = jsonDec.decode(player.matchHistoryByOpponent)
-                if opponentAndrew in matchesDict:
-                    matchesDict[opponentAndrew].append(selfMatchInfo)
-                else:
-                    matchesDict[opponentAndrew]=[selfMatchInfo]
-                player.matchHistoryByOpponent=json.dumps(matchesDict)
-
-                # update for user's opponent
-                if opponent.matchHistoryByOpponent== "None":
-                    opponentDict=dict()
-                else:
-                    jsonDec = json.decoder.JSONDecoder()
-                    opponentDict = jsonDec.decode(opponent.matchHistoryByOpponent)
-                if player.andrew in opponentDict:
-                    opponentDict[player.andrew].append(opponentMatchInfo)
-                else:
-                    
-                    opponentDict[player.andrew]=[opponentMatchInfo]
-                opponent.matchHistoryByOpponent=json.dumps(opponentDict)
-
-
-                user.player.save()
-                opponent.save()
-
-                request.session['pointsGain']=(selfGain,player.points,opponentGain)
-                
-                return render(request,'app/result_confirmation.html', context)
-
-                # return redirect('success')
-                # return render(request,'success.html',context)
-                # return render(request,'app/profile.html', context)
-            except:
-                context['result'] = 'Plase make sure you fill in the form correctly.'
-                return render(request,'app/result_confirmation.html', context)
-
-    else:
-        context['match']=(formData['match_date'],formData['opponent_andrew'],formData['winner_andrew'],
-                                formData['match_score'])
-
-        return render(request,'app/result_confirmation.html', context)
+    return render(request,'app/result_confirmation.html', context)
 
 # match result confirmed and will be saved
 def success(request):
@@ -288,11 +154,7 @@ def success(request):
 
 
     formData=request.session['matchFormData']
-    # create a form instance and populate it with data from the request:
-    # form = MatchScoreForm(request.POST)
 
-    # check whether it's valid:
-    #     context['result'] = form.get("first_name")
     user=request.user
     player=user.player           
     # matchHistoryByTime
@@ -345,6 +207,7 @@ def success(request):
         allMatches = jsonDec.decode(player.matchHistoryByTime)
 
     allMatches.append(matchResultForPlayer)
+    allMatches=player.rankByDate(allMatches)
 
     player.matchHistoryByTime=json.dumps(allMatches)
     
@@ -356,6 +219,7 @@ def success(request):
         opponentMatches = jsonDec.decode(opponent.matchHistoryByTime)
 
     opponentMatches.append(matchResultForOpponent)
+    opponentMatches=opponent.rankByDate(opponentMatches)
 
     opponent.matchHistoryByTime=json.dumps(opponentMatches)
 
@@ -388,6 +252,7 @@ def success(request):
         matchesDict = jsonDec.decode(player.matchHistoryByOpponent)
     if opponentAndrew in matchesDict:
         matchesDict[opponentAndrew].append(selfMatchInfo)
+        matchesDict[opponentAndrew]=player.rankByDate(matchesDict[opponentAndrew])
     else:
         matchesDict[opponentAndrew]=[selfMatchInfo]
     player.matchHistoryByOpponent=json.dumps(matchesDict)
@@ -400,8 +265,8 @@ def success(request):
         opponentDict = jsonDec.decode(opponent.matchHistoryByOpponent)
     if player.andrew in opponentDict:
         opponentDict[player.andrew].append(opponentMatchInfo)
+        opponentDict[player.andrew]=opponent.rankByDate(opponentDict[player.andrew])
     else:
-        
         opponentDict[player.andrew]=[opponentMatchInfo]
     opponent.matchHistoryByOpponent=json.dumps(opponentDict)
 
@@ -657,8 +522,12 @@ def match_history_opponent(request,player_id,opponent_id):
             context['player']=player
             context['opponent']=opponent
             context['player_id']=request.user.player.pk
+            context['numMatches']=len(matches)
             context['total_percent']=int(100*(player.findPercentageOfWins(matches)))
-            context['recent_percent']=int(100*(player.findPercentageOfWins(recent_matches)))
+            if player.findPercentageOfWins(recent_matches)==None:
+                context['recent_percent']=None
+            else:
+                context['recent_percent']=int(100*(player.findPercentageOfWins(recent_matches)))
             context['matches']=matches
             print(player.getConfidenceFactorAgainstOpponent(opponent))
             context['confidence_factor_against']=player.getConfidenceFactorAgainstOpponent(opponent)

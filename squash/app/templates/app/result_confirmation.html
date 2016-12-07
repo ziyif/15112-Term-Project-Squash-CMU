@@ -6,23 +6,24 @@
 
 
     <div class="container">
+        <div><br/></div>
 
-            <p> Please confirm the match information is correct. </p>
-
-            
-
-            <li> Date: {{match}}</li>
-           <!--  <li> Opponent Andrew ID: {{b}}</li>
-            <li> Winner Andrew ID: {{c}}</li>
-            <li> Score: {{d}} </li> -->
+            <h5> Please confirm the match information is correct. </h5>
 
             
+            <div><br/></div>
 
-            <div class="row">
+            <li> Date: {{date}}</li>
+            <li> Opponent Andrew ID: {{opponent_andrew}}</li>
+            <li> Winner Andrew ID: {{winner}}</li>
+            <li> Score: {{score}} </li>
+
+            
+            <div><br/></div>
+            <div class="row" >
                     <a onclick="location.href='/enter_result';"
                     class="waves-effect waves-light btn">Re-enter Match Result</a>
-
-
+                    <!--  <div> <space></space><div> -->
                     <a onclick="location.href='/success';"
                     class="waves-effect waves-light btn">Confirm</a>
 

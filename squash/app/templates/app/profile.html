@@ -9,9 +9,7 @@
     <div class="container">
     <h1>{{ player.first_name}} {{"'s Profile"}}</h1>
 
-
-
-    <table>
+    <table style='width:400px'>
         <thead>
           <tr>
               <th data-field="id"></th>
@@ -24,43 +22,44 @@
           <tr>
             <td><i class="material-icons">perm_identity</i> Name</td>
             <td>{{player.first_name}} {{player.last_name}}</td>
-
-            <!-- <td>Andrew ID</td>
-            <td>Gender</td>
-            <td>Email</td>
-            <td>Phone</td>
-            <td>Frequency</td>
-            <td>Skill Level</td>
-            <td>Preferred Times</td> -->
           </tr>
-
-
           <tr>
-          <td>Andrew</td>
-          <td>{{player.andrew}}</td>
-          </tr>
-          <!-- <tr>
-            <td>{{player.first_name}} {{player.last_name}}</td>
+            <td><i class="material-icons">picture_in_picture</i> Andrew ID</td>
             <td>{{player.andrew}}</td>
+          </tr>
+          <tr>
+            <td><i class="material-icons">person_pin</i> Gender</td>
             <td>{{player.gender}}</td>
+          </tr>
+          <tr>
+            <td><i class="material-icons">email</i> Email</td>
             <td>{{player.email}}</td>
+          </tr>
+          <tr>
+            <td><i class="material-icons">phone</i> Phone Number</td>
             <td>{{player.phone}}</td>
-            <td>{{player.frequency}}/week</td>
+          </tr>
+          <tr>
+            <td><i class="material-icons">description</i> Skill Level</td>
             <td>{{player.level}}</td>
-
-            <td>
-              {% for time in preferred_times %}
+          </tr>
+          <tr>
+            <td><i class="material-icons">av_timer</i> Frequency</td>
+            <td>{{player.frequency}} / week</td>
+          </tr>
+          <tr>
+            <td><i class="material-icons">perm_contact_calendar</i> Preferred Times</td>
+            <td> {% for time in preferred_times %}
                 <li>{{time | time_in_week}}</li>
-                  {% endfor %}
-              </td>
-          </tr> -->
-         
-        </tbody>
-      </table>
+                  {% endfor %}</td>
+          </tr>
+    </tbody>
+    </table>
 
 
 
 
+<!-- 
     <ul>
 
       <li><i class="material-icons">perm_identity</i> {{'Andrew ID: '}} {{player.andrew}}</li>
@@ -74,17 +73,16 @@
       {% for time in preferred_times %}
       <li>{{time | time_in_week}}</li>
       {% endfor %}
-      <!-- {{preferred_times| times_in_week | join:", "}} -->
+      {{preferred_times| times_in_week | join:", "}}
       </li>
       
 
-    </ul>
+    </ul> -->
 
     {% if allowUpdate != None %}
     <a onclick="location.href='/update';"
               class="waves-effect waves-light btn">Update Profile</a>
     {% endif %}
     </div>
-
 
 {% endblock %}

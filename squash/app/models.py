@@ -306,6 +306,8 @@ class Player(models.Model):
     def findPercentageOfWins(self,matches):
         totalMatches=len(matches)
         numOfWin=self.findNumOfWins(matches)
+        if numOfWin==None:
+            return None
         return numOfWin/totalMatches
 
     def getDate(self):
@@ -410,7 +412,7 @@ class Player(models.Model):
         # have not played with player recently
         elif numOfRecentMatches==0:
             recentPercentageOfWins=0
-            percentageOfWinsScore==0.2*recentPercentageOfWins+0.8*totalPercentageOfWins
+            percentageOfWinsScore=0.2*recentPercentageOfWins+0.8*totalPercentageOfWins
 
         if 1<=numOfTotalMatches < 3:
             overallScore=scale*(0.1* mostRecentMatchScore+ 0.4* percentageOfWinsScore
