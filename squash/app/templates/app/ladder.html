@@ -13,6 +13,41 @@
          <p> Your Rank: {{rank}}</p> 
 
 
+
+        <div class="row">
+          <div class="col s12 m6">
+            <div class="card  teal darken-2">
+              <div class="card-content white-text">
+                <span class="card-title">{{num}} Ways to Improve Your Rank By 1:</span>
+                {% if challenge_matches == None %}
+                <p> You Current Rank is 1!</p>
+                {% else %}
+                {% for x,y in challenge_matches %}
+                <li> Win {{y}} Matche(s) against {{x.first_name}} </li>
+                {% endfor %}
+                {% endif %}
+                <!-- <li>* Confidence Factor: {{confidence_factor}}</li> -->
+              </div>
+              <!-- <div class="card-action">
+                <a href="#">This is a link</a>
+                <a href="#">This is a link</a> -->
+            </div>
+          </div>
+        </div>
+
+
+
+<!--          <p> <div class='green-text'>{{num}} Ways to Improve Your Rank By 1:</div></p> 
+         {% if challenge_matches == None %}
+         <p> You Current Rank is 1!</p>
+         {% else %}
+         {% for x,y in challenge_matches %}
+         <li> Win {{y}} Matche(s) against {{x.first_name}} </li>
+         {% endfor %}
+         {% endif %} -->
+
+        <div><br/></div>
+
         <table class="centered" style='width:600px'>
 
             <thead>

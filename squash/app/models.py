@@ -718,18 +718,3 @@ class Requirements(models.Model):
 
 
 
-# class PlayerForm(forms.ModelForm):
-    
-#     class Meta:
-
-#         error_messages = {
-#             NON_FIELD_ERRORS: {
-#                 'unique_together': "%(model_name)s's %(field_labels)s are not unique.",
-#             }
-#         }
-#         model= Player
-#         fields=['first_name','last_name','phone','andrew','email']
-#         # fields="__all__"
-#         #['first_name','last_name','gender','phone','andrew','email','level','times','frequency']
-
-

@@ -55,12 +55,114 @@ def rankAllPlayers(players):
         rankedResult.append((rank,score,player))
 
     return rankedResult
+
 def getRank(player,rankedPlayers):
     for person in rankedPlayers:
         if person[2]==player:
             return person[0]
-    
     return None
+def getIndex(player,rankedPlayers):
+    for i in range(len(rankedPlayers)):
+        if rankedPlayers[i][2]==player:
+            return i
+    return None
+
+# player1 ranks same or lower than player 2 and player1 wins 
+def getPointsGain(player1Points,player2Points):
+    difference=player2Points-player1Points
+    if difference==0:
+        return (10,-5)
+    elif difference>=100: return (50,-30)
+    elif 50<=difference<100: return (25,-15)
+    elif 0<difference<50: return (15,-10)
+ 
+def getNewRank(points,resultList):
+    highToLow=list(reversed(sorted(resultList)))
+    count=1
+    prevRank=0
+    prevScore=-100
+    for score in highToLow:
+        if score==prevScore:
+            rank=prevRank
+            count+=1
+        else:
+            rank=prevRank+count
+            count=1
+            prevRank=rank
+            prevScore=score
+        if score==points:
+            return rank
+
+# returns outcome if player wins a match against opponent
+def afterOneMatch(player,playerPoints,opponent,opponentPoints,rankedPlayers):
+
+    gain=getPointsGain(playerPoints,opponentPoints)
+    playerPoints+=gain[0]
+    opponentPoints+=gain[1]
+    # result is a list with points
+    result=[]
+    for person in rankedPlayers:
+        if person[2]==player:
+            result.append(playerPoints)
+        elif person[2]==opponent:
+            result.append(opponentPoints)
+        else:
+            result.append(person[1])
+    newRank=getNewRank(playerPoints,result)
+
+    return (newRank,playerPoints,opponentPoints)
+
+def getPossibleOpponents(curRank,index,rankedPlayers,n):
+
+    delta=1
+    result=[]
+    differenceInRank=0
+    while differenceInRank<=n:
+        if index-delta<0: break
+        differenceInRank=curRank-rankedPlayers[index-delta][0]
+        if differenceInRank==0:
+            delta+=1
+        elif differenceInRank==n+1:
+            break
+        else:
+            result.append(rankedPlayers[index-delta])
+            delta+=1
+    return result
+
+ # rankedPlayers: [(1,240,player),(2,200,player)]   
+def getWaysToMoveUpInLadder(player,rankedPlayers):
+    curRank=getRank(player,rankedPlayers)
+    index=getIndex(player,rankedPlayers)
+    #  two players higher ranked apponents
+    if curRank==1:
+        return []
+    elif curRank==2:
+        n=1
+    elif curRank==3:
+        n=2
+    else:
+        n=3
+    print(n)
+    possibleOpponents=getPossibleOpponents(curRank,index,rankedPlayers,n)
+    print(possibleOpponents)
+    matchesNeeded=[]
+    for opponentInfo in possibleOpponents:
+        opponentCurPoints=opponentInfo[1]
+        # the object opponent
+        opponent=opponentInfo[2]
+        count=1
+        resultAfterMatch=afterOneMatch(player,player.points,opponent,opponentCurPoints,rankedPlayers)
+        # rank unchanged
+        while resultAfterMatch[0]==curRank:
+            count+=1
+            # playe one more match
+            newPoints=resultAfterMatch[1]
+            opponentNewPoints=resultAfterMatch[2]
+            resultAfterMatch=afterOneMatch(player,newPoints,opponent,opponentNewPoints,rankedPlayers)
+        matchesNeeded.append((opponent,count))
+    return matchesNeeded
+
+
     
 @login_required(login_url='/login',redirect_field_name='')
 def ladder(request):
@@ -76,8 +178,18 @@ def ladder(request):
 
     players=Player.objects.all()
     rankedPlayers=rankAllPlayers(players)
+    print(rankedPlayers)
     context['ladder']=rankedPlayers
-    context['rank']=getRank(player,rankedPlayers)
+    rank=getRank(player,rankedPlayers)
+    context['rank']=rank
+    if rank==1:
+        context['challenge_matches']=None
+    else:
+        ways=getWaysToMoveUpInLadder(player,rankedPlayers)
+        context['num']=len(ways)
+        context['challenge_matches']=ways
+
+
     return render(request,'app/ladder.html', context)
 
 # def result_confirmation(request):
