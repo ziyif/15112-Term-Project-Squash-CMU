@@ -237,6 +237,7 @@ def enter_result(request):
     else:
         return render(request,'app/enter_result.html', context)
 
+@login_required(login_url='/login',redirect_field_name='')
 def result_confirmation(request):
     if request.user.is_authenticated():
         try:
@@ -254,6 +255,7 @@ def result_confirmation(request):
 
     return render(request,'app/result_confirmation.html', context)
 
+@login_required(login_url='/login',redirect_field_name='')
 # match result confirmed and will be saved
 def success(request):
     if request.user.is_authenticated():
@@ -764,7 +766,7 @@ def updateProfile(request):
         return render(request,'app/updateProfile.html', context)
     return render(request,'app/updateProfile.html', context)
 
-
+@login_required(login_url='/login',redirect_field_name='')
 def filter(request):
     context={}
     # def processForm(data):
@@ -796,7 +798,7 @@ def filter(request):
 #     # context= {'player_id': request.user.player.pk}
 #     return render(request,'app/match_result.html', context) 
 
-
+@login_required(login_url='/login',redirect_field_name='')
 def match_result(request):
     context={}
     curPlayer=None

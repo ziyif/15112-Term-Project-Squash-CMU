@@ -11,7 +11,7 @@
 
     {% if result is None %}
 
-      <li><u><a href="/user/{{opponent.id}}">View Player Profile</a></u></li>
+      <li><u><a href="/user/{{opponent.id}}">View {{opponent.first_name}}'s Profile</a></u></li>
 
       <p> <h4 class='orange-text'> * Confidence Factor Against {{opponent.first_name}} : {{confidence_factor_against}}</h4> </p> 
 
