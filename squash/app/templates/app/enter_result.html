@@ -4,8 +4,10 @@
 
 {% block body %}
 
-<!-- adapted from https://www.tutorialspoint.com/materialize/materialize_selects.htm -->
-  
+
+<!-- Form temlate Adapted from http://materializecss.com/forms.html -->
+<!-- script Adapted from https://www.tutorialspoint.com/materialize/materialize_selects.htm -->
+
    <head>
       <title>The Materialize Selects Example</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">      
@@ -23,7 +25,7 @@
     <div class="container">
       <h4>Enter Match Result</h4>
       <p class="red-text"> {{result}} </p>
-<!--     <div class="section"><br><br><br><br><br></div> -->
+
       <form class="col s12" method="POST" action="/enter_result" id="filter-form">
         {% csrf_token %}
 
@@ -60,12 +62,7 @@
           </div>
         </div>
 
-        
-
-        <!-- <input type="date" class="datepicker"> -->
-
-        
-
+                
 
         <div class='section'><br></div>
 

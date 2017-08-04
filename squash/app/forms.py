@@ -2,6 +2,8 @@ from django.contrib.auth.models import User
 from django import forms
 from .models import Player
 
+# Code below are all based on Django Documentation
+# https://docs.djangoproject.com/en/1.10/
 
 GENDER_CHOICES=(
         ('M','Male'),
@@ -117,8 +119,7 @@ class RequirementsForm(forms.Form):
  
 class UserForm(forms.ModelForm):
     password=forms.CharField(widget=forms.PasswordInput)
-    
-    
+        
     class Meta:
         model=User
         fields=['username']

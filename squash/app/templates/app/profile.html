@@ -5,7 +5,9 @@
 {% block title %}User Profile{% endblock %}
 
 {% block body %}
-  
+
+<!-- table template adapted from http://materializecss.com/table.html --> 
+
     <div class="container">
     <h1>{{ player.first_name}}{{"'s Profile"}}</h1>
 
@@ -56,28 +58,6 @@
     </tbody>
     </table>
 
-
-
-
-<!-- 
-    <ul>
-
-      <li><i class="material-icons">perm_identity</i> {{'Andrew ID: '}} {{player.andrew}}</li>
-      <li><i class="material-icons">person_pin</i> {{'Gender: '}} {{player.gender}}</li>
-      <li><i class="material-icons">phone</i> {{'Phone: '}} {{player.phone}}</li>
-      <li><i class="material-icons">email</i> {{'Email: '}} {{player.email}}</li>
-      <li><i class="material-icons">av_timer</i> {{'Frequency: '}} {{player.frequency}}/week</li>
-      <li><i class="material-icons">description</i> Skill Level{{player.level}}</li>
-      <li><i class="material-icons">perm_contact_calendar</i>
-       {{'Preferred times: '}}
-      {% for time in preferred_times %}
-      <li>{{time | time_in_week}}</li>
-      {% endfor %}
-      {{preferred_times| times_in_week | join:", "}}
-      </li>
-      
-
-    </ul> -->
 
     {% if allowUpdate != None %}
     <a onclick="location.href='/update';"

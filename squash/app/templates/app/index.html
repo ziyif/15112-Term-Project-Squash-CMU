@@ -4,6 +4,9 @@
 {% load static %}
 {% block body %}
 
+<!-- template adapted from http://materializecss.com/cards.html -->
+<!-- Cards tempalte adapted from http://materializecss.com/cards.html -->
+
 <div class="container">
 {% if login_status is None %}
 <h5>{{ greetings }} {{ instructions }}</h5>
@@ -15,6 +18,7 @@
         <div class="col s12 m3">
           <div class="card">
             <div class="card-image">
+   <!-- image taken from https://www.openplay.co.uk/connect/type/squash-partners -->
               <img src="/static/images/partner.jpg", style="height: 150px">
               <span class="card-title">Find A Buddy</span>
             </div>
@@ -38,6 +42,7 @@
         <div class="col s12 m3">
           <div class="card">
             <div class="card-image">
+                <!--  image taken from https://www.pinterest.com/pin/162270392794642834/ -->
               <img src="/static/images/match.jpg", style="height: 150px">
               <span class="card-title">Play Games</span>
             </div>
@@ -59,6 +64,7 @@
         <div class="col s12 m3">
           <div class="card">
             <div class="card-image">
+                 <!-- image taken from https://powerbi.microsoft.com/en-us/blog/visualizing-data-for-the-squash-world-championships-with-power-bi/ -->
               <img src="/static/images/squash-data.png", style="height: 150px">
               <span class="card-title"><div class="black-text", style="font-weight:bold">View Match Data</div></span>
             </div>
@@ -81,6 +87,7 @@
         <div class="col s12 m3">
           <div class="card" >
             <div class="card-image">
+               <!--  image taken from http://tavisquash.org/activities/ -->
               <img src="/static/images/ladder.jpg", style="height: 150px">
               <span class="card-title"><div class="black-text", style="font-weight:bold">Climb the Ladder</div></span>
             </div>
@@ -98,11 +105,7 @@
           </div>
         </div>
 
-
-
 </div>
-
-
 
 
 </div>

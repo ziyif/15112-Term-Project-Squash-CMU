@@ -1,8 +1,13 @@
-<!-- http://www.tangowithdjango.com/book/chapters/login.html -->
+
+<!-- template adapted from http://www.tangowithdjango.com/book/chapters/login.html -->
 {% extends 'app/base.html' %}
 {% block body %}
 
 <head>
+<!-- 
+adapted from https://www.tutorialspoint.com/materialize/materialize_selects.htm -->
+
+
       <title>The Materialize Selects Example</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">      
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
@@ -16,11 +21,6 @@
       </script>
    </head>
 
-<!-- 
-    <head>
-        Is anyone getting tired of repeatedly entering the header over and over??
-        <title>Log In</title>
-    </head> -->
 
     <div class="container">
 
@@ -31,8 +31,6 @@
         
 
         <form class="col s12" method="POST" action="/login" id="login-form">
-
-            <!-- <form id="login_form" method="post" action="/login"> -->
 
 
 
@@ -70,24 +68,9 @@
                     <a onclick="location.href='/register';"
                     class="waves-effect waves-light btn">Register</a>
 
-
-
-
-
-
-
-                <!-- Username: <input type="text" name="username" value="" size="50" />
-                <br />
-                Password: <input type="password" name="password" value="" size="50" />
-                <br />
-
-                <input type="submit" value="submit" /> -->
             </form>
 
         </div>
-
-
-
 
 
 

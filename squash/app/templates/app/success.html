@@ -1,3 +1,5 @@
+
+<!-- template adapted from http://materializecss.com -->
 {% extends 'app/base.html' %}
 
 {% block title %}Match Result{% endblock %}
@@ -12,15 +14,9 @@
             <p> Your Ranking Points: {{updatedPoints}}</p>
             <p> Opponent's Gain: {{opponentGain}}</p>
 
-
-
-
             <div class="row">
                     <a onclick="location.href='/match_history/{{player_id}}';"
                     class="waves-effect waves-light btn">View Match History</a>
-
-
-        
             </div>
     </div>
 

@@ -6,10 +6,9 @@
 
 {% block body %}
   
+<!-- table template adapted from http://materializecss.com/table.html -->
     <div class="container">
         <p> We Found {{matchesFound}} Results </p>
-
-
 
     <table class="centered">
 
@@ -22,7 +21,7 @@
           <th data-field="5">Phone</th>
           <th data-field="6">Skill Level</th>
             <th data-field="7">Ranking Points</th>
-          <th data-field="8">Common Times</th>
+          <th data-field="8">Common Available Times</th>
           <th data-field="9">Percent Match</th>
         </tr>
       </thead>
@@ -57,28 +56,6 @@
     </table>
 
 
-
-       <!--  <ul>
-            {% for rank, players in partners.items %}
-            
-                {% for playerKey, playerInfo in players.items %}
-                    
-                    <li> Rank: {{rank}}  Player Name:  {{playerKey}} {{playerInfo.player.last_name}}  </li>
-                    <u><li><a href="/user/{{playerInfo.player.id}}">View Player Profile</a></li></u>
-                    <li> Gender: {{playerInfo.player.gender}} </li>
-                    <li> Email: {{playerInfo.player.email}} </li>
-                    <li> Phone Number: {{playerInfo.player.phone}} </li>
-                    <li> Skill Level: {{playerInfo.player.level}} </li>
-
-                    <li> Common Times:  
-
-                        {{playerInfo.commonTimes | times_in_week | join:", "}} </li>
-                    
-                    <li> Percent Match: {{playerInfo.score}}</li>
-                    <br/>
-                {% endfor %}
-            {% endfor %}
-        </ul> -->
     </div>
 
 

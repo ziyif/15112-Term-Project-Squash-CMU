@@ -1,12 +1,10 @@
 from django.db import models
 from django.forms import ModelForm
 from django.contrib.auth.models import User
-# from django.core.exceptions import NON_FIELD_ERRORS
 from django.contrib.auth.models import (
     BaseUserManager, AbstractBaseUser
 )
 
-# from video do i need it?
 from django.core.urlresolvers import reverse
 import json
 
@@ -18,6 +16,8 @@ from django.db.models.signals import post_save
 from django.contrib.auth.models import User
 from registration.signals import user_registered
 
+# Code below are all based on Django Documentation
+# https://docs.djangoproject.com/en/1.10/
 
 class Player(models.Model):
     user=models.OneToOneField(User,on_delete=models.CASCADE,null=True)
@@ -108,8 +108,9 @@ class Player(models.Model):
     points=models.IntegerField(default=0)
     matchHistoryByOpponent=models.TextField(default="None")
     matchHistoryByTime=models.TextField(default="None")
-    # matchHistory=models.TextField(default="None")
-    # [[date,winner,opponentandrew,opponent,score]]
+
+    # adapted from tutorial:
+    # https://www.youtube.com/watch?v=UpssHYl6bjA&list=PL6gx4Cwl9DGBlmzzFcLgDhKTTfNLfX1IK&index=7
     def get_absolute_url(self):
         return reverse('app.views.profile',kwargs={'pk':self.pk})
         
@@ -131,12 +132,14 @@ class Player(models.Model):
             userprofile.save()
         return
 
-
+    # adapted from tutorial:
+    # https://www.youtube.com/watch?v=UpssHYl6bjA&list=PL6gx4Cwl9DGBlmzzFcLgDhKTTfNLfX1IK&index=7
     def create_user_profile(**kwargs):
         UserProfile.objects.get_or_create(user=kwargs['user'])
 
     user_registered.connect(create_user_profile)
 
+    # find matches for user
     def autoMatch(self,allPlayers):
         
         result=dict()
@@ -150,15 +153,16 @@ class Player(models.Model):
             selfLevel=float(self.level)
             
             levelWeight=0.5
+
+            # difference in level
             difference=abs(selfLevel-playerLevel)
             if difference>=2:
                 score=0
             else:
-                differenceWeight=0.5
-                score=fullScore-difference*differenceWeight
+                differenceScale=0.5
+                score=fullScore-difference*differenceScale
             levelScore=levelWeight*score
-            print('levelScore',levelScore)
-
+            
 
             #timesPreferred
 
@@ -172,45 +176,48 @@ class Player(models.Model):
             commonTimes=timesSet.union(playerTimes)
             numOfCommonBlocks=len(commonTimes)
             timesWeight=0.3
+
             if numOfCommonBlocks>=self.frequency:
                 timesScore=fullScore*timesWeight
             else:
                 timesScore=numOfCommonBlocks/self.frequency*timesWeight
-            print('timesScore',timesScore)
 
 
             # frequency
             frequencyWeight=0.2
             playerFrequency=player.frequency
             selfFrequency=self.frequency
-            frequencyScore=min(playerFrequency,selfFrequency)/max(playerFrequency,selfFrequency)*frequencyWeight
-            print('freqScore',frequencyScore)
-
+            frequencyScore=(min(playerFrequency,selfFrequency)/
+                    max(playerFrequency,selfFrequency)*frequencyWeight)
+            
             scale=100
             totalScore=(levelScore+frequencyScore+timesScore)*scale
             totalScore= float("{0:.2f}".format(totalScore))
 
-            
-
+            # Only players with a 70 percent match score will be displayed
             goodScore=70
             if totalScore> goodScore and (player != self):
                 numOfMathces+=1
                 if totalScore not in result:
-                    result[totalScore]={player.first_name:{'player': player,'commonTimes': commonTimes,'score':totalScore}}
+                    result[totalScore]= {player.first_name:
+                    {'player': player,'commonTimes': commonTimes,
+                    'score':totalScore}}
                 else:
-                    result[totalScore][player.first_name]={'player': player,'commonTimes': commonTimes,'score':totalScore}
-        # tuple: ( number of player found, dictionary with players )
+                    result[totalScore][player.first_name]={'player': player,
+                    'commonTimes': commonTimes,'score':totalScore}
+
+        # return a tuple: ( number of player found, dictionary with players )
         return (numOfMathces,result)
 
+    # rank all matches found according to the percent Match score
     def rankByScore(self,allPlayers):
         
         numOfMatches,matchPlayers=self.autoMatch(allPlayers)
-        
+
         scores=[]
         for score in matchPlayers:
-            # playersWithScore=len(matchPlayers[score])
-            # for i in range(playersWithScore):
             scores.append(score)
+
         sortedScores=sorted(scores)
         sortedScores=list(reversed(sortedScores))
         rankedResult=dict()
@@ -219,51 +226,21 @@ class Player(models.Model):
             curRank+=1
             score=sortedScores[i]
             playersWithScore=matchPlayers[score]
-            # for player in playersWithScore:
-            #     print('here',playersWithScore[player])
-            #     playersWithScore[player].append(score)
             rankedResult[curRank]=playersWithScore
             curRank+=(len(playersWithScore)-1)
-        print('rankedResult', rankedResult)
+        
         return (numOfMatches, rankedResult)
 
-    # def getMatchHistory(self,player):
-    #     Format={'user1': [(20160102,'winnerAndrew',"3:1"),(20160103,'winnerAndrew','1:2')]}
-    #     jsonDec = json.decoder.JSONDecoder()
-
-    #     allMatches = jsonDec.decode(self.matchHistory)
-    #     playerAndrew=player.andrew
-    #     # list
-    #     if playerAndrew in allMatches:
-    #         matches=allMatches[playerAndrew]
-    #         numOfMatches=len(matches)
-    #         rankedMatches=rankByDate(matches)
-    #         return rankedMatches
-    #     else:
-    #         return []
-
-    # def rankByDate(matches):
-    #     return sorted(matches,key=lambda x: x[0])
-
-    # def findPercentageOfWins(self,player,rankedMatches):
-    #     totalMatches=len(rankedMatches)
-    #     for match in rankedMatches:
-    #         if match[1]==self.andrew:
-    #             numOfWin+=1
-    #     return numOfWin/totalMatches
-
-
-    # def pointsGain(self,player,result,rankedMatches):
-    #     # rank lower and loses, no gain no loss
-    #     if self.points<=player.points and result[1]==player.andrew:
-    #         return 0
-
-    #     # rank lower and wins
-    #     elif self.points<=player.points and result[1]==self.andrew:
-    #         percentageOfWins=findPercentageOfWins(self,player,rankedMatches)
 
     #############
     #Match Result, Scoring systems
+
+    def rankByDate(self,matches):
+        # matches is a list of tuples like (20160102,'winnerAndrew',"3:1")
+        # date is in the format yyyymmdd so the most recent has the largest val
+        rankedMatches=sorted(matches,key=lambda x: x[0])
+        rankedMatches=rankedMatches[::-1]
+        return rankedMatches
 
     def getAllMatchHistory(self):
         jsonDec = json.decoder.JSONDecoder()
@@ -274,12 +251,14 @@ class Player(models.Model):
     def getMatchHistoryAgainstOpponent(self,player):
         if self.matchHistoryByOpponent=="None":
             return []
-        # Format={'user1': [(20160102,'winnerAndrew',"3:1"),(20160103,'winnerAndrew','1:2')]}
+        # format is {'user1': [(20160102,'winnerAndrew',"3:1"),
+        #    (20160103,'winnerAndrew','1:2')]}
         jsonDec = json.decoder.JSONDecoder()
 
         allMatches = jsonDec.decode(self.matchHistoryByOpponent)
         playerAndrew=player.andrew
-        # list
+
+        # allMatches is a list
         if playerAndrew in allMatches:
             matches=allMatches[playerAndrew]
             numOfMatches=len(matches)
@@ -288,16 +267,14 @@ class Player(models.Model):
         else:
             return []
 
-    def rankByDate(self,matches):
-        rankedMatches=sorted(matches,key=lambda x: x[0])
-        rankedMatches=rankedMatches[::-1]
-        return rankedMatches
+
 
     def findNumOfWins(self,matches):
         totalMatches=len(matches)
         numOfWin=0
         if totalMatches==0:
             return None
+        # match is a tuple like (20160102,'winnerAndrew',"3:1")
         for match in matches:
             if match[1]==self.andrew:
                 numOfWin+=1
@@ -310,6 +287,7 @@ class Player(models.Model):
             return None
         return numOfWin/totalMatches
 
+    # returns the current date in the format of a string yyyymmdd
     def getDate(self):
         today=datetime.datetime.today()
         year=str(today.year)
@@ -322,6 +300,7 @@ class Player(models.Model):
         date=year+month+day
         return eval(date)
 
+    # returns the date n months ago in the format of a string yyyymmdd
     def dateOfNMonthsAgo(self,n):
         thisDay=datetime.date.today() - datetime.timedelta(n*365/12)
         year=str(thisDay.year)
@@ -334,12 +313,13 @@ class Player(models.Model):
         date=year+month+day
         return eval(date)
 
-        
+    # returns a list of matches in the recent n months    
     def getRecentMatches(self,rankedMatches,n):
         currentDate=self.getDate()
         dateOfNMonthsAgo=self.dateOfNMonthsAgo(n)
         result=[]
         for i in range (len(rankedMatches)):
+            # match is a tuple like (20160102,'winnerAndrew',"3:1")
             match=rankedMatches[i]
             dateOfMatch=match[0]
             if dateOfMatch>=dateOfNMonthsAgo:
@@ -348,7 +328,7 @@ class Player(models.Model):
                 break
         return result
 
-
+    # returns a core of activeness-depends on number of matches played recently
     def getActivityScore(self,timePeriod):
         allMatches=self.getAllMatchHistory()
         # activity in 3 months
@@ -360,7 +340,9 @@ class Player(models.Model):
             return 1-1/numOfRecentMatches
 
     def getConfidenceFactorAgainstOpponent(self,player):
-        
+
+        # a partial score based on activeness
+        # activity score of recent 5 months
         selfActivityScore=self.getActivityScore(5)
         playerActivityScore=player.getActivityScore(5)
         if selfActivityScore+playerActivityScore==0:
@@ -368,6 +350,7 @@ class Player(models.Model):
         else:
             activityScore= selfActivityScore/(selfActivityScore+playerActivityScore)
 
+        # a partial score that depends on ranking points
         selfPoints= self.points
         playerPoints= player.points
         difference=selfPoints-playerPoints
@@ -380,6 +363,8 @@ class Player(models.Model):
 
         scale=100
 
+
+        # a partial score that depends on recent matches
         matchesAgainstOpponent=self.getMatchHistoryAgainstOpponent(player)
         numOfTotalMatches=len(matchesAgainstOpponent)
 
@@ -404,7 +389,7 @@ class Player(models.Model):
         else:
             mostRecentMatchScore=0
 
-
+        # Weights of each sub score depends on the number of recent matches
         if numOfRecentMatches>=2:
             percentageOfWinsScore=0.8*recentPercentageOfWins+0.2*totalPercentageOfWins
         elif numOfRecentMatches==1:
@@ -414,6 +399,8 @@ class Player(models.Model):
             recentPercentageOfWins=0
             percentageOfWinsScore=0.2*recentPercentageOfWins+0.8*totalPercentageOfWins
 
+        # Weights of each sub score depends on the number of total matches 
+        # between the two
         if 1<=numOfTotalMatches < 3:
             overallScore=scale*(0.1* mostRecentMatchScore+ 0.4* percentageOfWinsScore
                             + 0.2* activityScore+ 0.3* rankingScore)
@@ -433,6 +420,7 @@ class Player(models.Model):
         activity_in_three_months=self.getActivityScore(3)
         activityScore=0.4*activity_in_five_months+0.6*activity_in_three_months
 
+        # 0.6 and 0.4 are the weight
         totalScore=0.6*percentageOfWins+0.4*activityScore
         scale=100
 
@@ -616,15 +604,12 @@ class Requirements(models.Model):
         result=dict()
         numOfMathces=0
         for player in allPlayers:
-            # list 
-            
             
             importance=requirements['importance']  # dictionary
 
             totalImportanceScore=0
 
-            for key in importance:
-                
+            for key in importance:        
                 totalImportanceScore+=importance[key]
 
 
@@ -687,32 +672,32 @@ class Requirements(models.Model):
                     result[totalScore]={player.first_name:{'player': player,'commonTimes': commonTimes,'score':totalScore}}
                 else:
                     result[totalScore][player.first_name]={'player': player,'commonTimes': commonTimes,'score':totalScore}
-        # tuple: ( number of player found, dictionary with players )
+        # tuple: ( number of player found, dictionary with players found)
         return (numOfMathces,result)
 
+    # returns matching result as a dictionary with percentage Match 
+    # scores as keys.
     def rankByScore(self,allPlayers,curPlayer=None):
         
         numOfMatches,matchPlayers=self.filter(allPlayers,curPlayer)
         
         scores=[]
         for score in matchPlayers:
-            # playersWithScore=len(matchPlayers[score])
-            # for i in range(playersWithScore):
+
             scores.append(score)
         sortedScores=sorted(scores)
+
         sortedScores=list(reversed(sortedScores))
         rankedResult=dict()
         curRank=0
         for i in range(len(sortedScores)):
             curRank+=1
             score=sortedScores[i]
+            # a dict of players with this matching percentage score
             playersWithScore=matchPlayers[score]
-            # for player in playersWithScore:
-            #     print('here',playersWithScore[player])
-            #     playersWithScore[player].append(score)
             rankedResult[curRank]=playersWithScore
             curRank+=(len(playersWithScore)-1)
-        print('rankedResult', rankedResult)
+
         return (numOfMatches, rankedResult)
 
 

@@ -14,8 +14,14 @@ from .forms import NameForm, RequirementsForm,UserForm,MatchScoreForm
 from .models import Player,Requirements
 import json
 
-# Create your views here.
+##############
+# Code below are all based on Django Documentation
+# https://docs.djangoproject.com/en/1.10/
 
+# home page
+def test():
+    return
+    
 def index(request):
     context={}
     players=Player.objects.all()
@@ -28,9 +34,13 @@ def index(request):
         except:
             context={}
     context['greetings'] = "Welcom!"
-    context['instructions'] = "Please log in to enjoy all features."
+    context['instructions'] = "Please log in to enjoy the features."
     return render(request, 'app/index.html', context)
 
+#### 
+# The following functions are for the ladder feature
+
+# rank players according to ranking points
 def rankAllPlayers(players):
     playerPoints=[]
     for player in players:
@@ -53,29 +63,35 @@ def rankAllPlayers(players):
             prevRank=rank
             prevScore=score
         rankedResult.append((rank,score,player))
-
     return rankedResult
 
+# returns the rank of a particular user
 def getRank(player,rankedPlayers):
     for person in rankedPlayers:
         if person[2]==player:
             return person[0]
     return None
+
+# returns the index of the user in the list
 def getIndex(player,rankedPlayers):
     for i in range(len(rankedPlayers)):
         if rankedPlayers[i][2]==player:
             return i
     return None
 
-# player1 ranks same or lower than player 2 and player1 wins 
+
+# this function returns a tuple of points gain 
+# in the condition that player1 ranks same or lower than player 2 
+# and player1 wins
 def getPointsGain(player1Points,player2Points):
     difference=player2Points-player1Points
-    if difference==0:
-        return (10,-5)
+    if difference==0: return (10,-5)
     elif difference>=100: return (50,-30)
     elif 50<=difference<100: return (25,-15)
     elif 0<difference<50: return (15,-10)
  
+# this function returns the rank of a player, given his/her points and a list 
+# of all ranking points
 def getNewRank(points,resultList):
     highToLow=list(reversed(sorted(resultList)))
     count=1
@@ -93,13 +109,13 @@ def getNewRank(points,resultList):
         if score==points:
             return rank
 
-# returns outcome if player wins a match against opponent
+# returns outcome if player wins a match against a certain opponent
 def afterOneMatch(player,playerPoints,opponent,opponentPoints,rankedPlayers):
 
     gain=getPointsGain(playerPoints,opponentPoints)
     playerPoints+=gain[0]
     opponentPoints+=gain[1]
-    # result is a list with points
+    # result is a list with integers that represent ranking points
     result=[]
     for person in rankedPlayers:
         if person[2]==player:
@@ -112,8 +128,9 @@ def afterOneMatch(player,playerPoints,opponent,opponentPoints,rankedPlayers):
 
     return (newRank,playerPoints,opponentPoints)
 
+# returns all possible opponents of a player, given that he/she can 
+# only challenge players with in n ranking places above him/her
 def getPossibleOpponents(curRank,index,rankedPlayers,n):
-
     delta=1
     result=[]
     differenceInRank=0
@@ -129,33 +146,40 @@ def getPossibleOpponents(curRank,index,rankedPlayers,n):
             delta+=1
     return result
 
- # rankedPlayers: [(1,240,player),(2,200,player)]   
+# rankedPlayers is a list of the format: [(1,240,player),(2,200,player)]   
 def getWaysToMoveUpInLadder(player,rankedPlayers):
     curRank=getRank(player,rankedPlayers)
     index=getIndex(player,rankedPlayers)
+
     #  two players higher ranked apponents
+
     if curRank==1:
         return []
     elif curRank==2:
+        # if rank is two, player can challenge 1 person
         n=1
     elif curRank==3:
+        # player can challenge 2 persons
         n=2
     else:
+        # player can challenge 3 persons (rule of ladder is player
+        # can only challenge players within 3 ranks above)
         n=3
-    print(n)
+
     possibleOpponents=getPossibleOpponents(curRank,index,rankedPlayers,n)
-    print(possibleOpponents)
+
     matchesNeeded=[]
     for opponentInfo in possibleOpponents:
         opponentCurPoints=opponentInfo[1]
-        # the object opponent
+        # opponent is an object Player
         opponent=opponentInfo[2]
         count=1
         resultAfterMatch=afterOneMatch(player,player.points,opponent,opponentCurPoints,rankedPlayers)
-        # rank unchanged
+        # while rank unchanged
         while resultAfterMatch[0]==curRank:
+            # num of matches needed to player increase by 1
             count+=1
-            # playe one more match
+            # play one more match
             newPoints=resultAfterMatch[1]
             opponentNewPoints=resultAfterMatch[2]
             resultAfterMatch=afterOneMatch(player,newPoints,opponent,opponentNewPoints,rankedPlayers)
@@ -178,7 +202,6 @@ def ladder(request):
 
     players=Player.objects.all()
     rankedPlayers=rankAllPlayers(players)
-    print(rankedPlayers)
     context['ladder']=rankedPlayers
     rank=getRank(player,rankedPlayers)
     context['rank']=rank
@@ -189,10 +212,8 @@ def ladder(request):
         context['num']=len(ways)
         context['challenge_matches']=ways
 
-
     return render(request,'app/ladder.html', context)
 
-# def result_confirmation(request):
 
 @login_required(login_url='/login',redirect_field_name='')
 def enter_result(request):
@@ -212,7 +233,6 @@ def enter_result(request):
         # check whether it's valid:
         if form.is_valid():
             formData = form.cleaned_data
-        #     context['result'] = form.get("first_name")
          
             try:            
             # matchHistoryByTime
@@ -224,8 +244,6 @@ def enter_result(request):
                 
                 request.session['matchFormData']=formData
                 return redirect('result_confirmation')
-                # return render(request,'result_confirmation.html',context)
-                # return render(request,'app/profile.html', context)
             except:
                 context['result'] = 'Plase make sure you fill in the form correctly.'
 
@@ -256,7 +274,7 @@ def result_confirmation(request):
     return render(request,'app/result_confirmation.html', context)
 
 @login_required(login_url='/login',redirect_field_name='')
-# match result confirmed and will be saved
+# goes to success page if match result confirmed and will be saved
 def success(request):
     if request.user.is_authenticated():
         try:
@@ -270,9 +288,9 @@ def success(request):
     formData=request.session['matchFormData']
 
     user=request.user
-    player=user.player           
-    # matchHistoryByTime
-    
+    player=user.player   
+
+    # update matchHistoryByTime
     opponentAndrew=formData['opponent_andrew']
     opponent=Player.objects.get(andrew=opponentAndrew)
     winnerAndrew=formData['winner_andrew']
@@ -337,7 +355,7 @@ def success(request):
 
     opponent.matchHistoryByTime=json.dumps(opponentMatches)
 
-    # matchHistoryByOpponent
+    # update matchHistoryByOpponent
 
     selfMatchInfo=(formData['match_date'],
                     winnerAndrew,
@@ -387,7 +405,6 @@ def success(request):
 
     user.player.save()
     opponent.save()
-
   
     context['selfGain']=selfGain
     context['updatedPoints']=player.points
@@ -395,186 +412,6 @@ def success(request):
                             
     return render(request,'app/success.html',context)
 
-# def success(request):
-#     if request.user.is_authenticated():
-#         try:
-
-#             context = {'player_id' : request.user.player.pk,
-#                         'login_status':request.user.player.first_name}
-#         except:
-#             context={}
-    
-
-#         context['selfGain']=selfGain
-#         context['updatedPoints']=player.points
-#         context['opponentGain']=opponentGain
-                
-                
-#                 return render(request,'success.html',context)
-#                 # return render(request,'app/profile.html', context)
-#             except:
-#                 context['result'] = 'Plase make sure you fill in the form correctly.'
-
-#         else:
-#             context['result'] = 'Plase make sure you fill in the form correctly.'
-#         return render(request,'app/enter_result.html', context)
-
-#     # if a GET (or any other method) we'll create a blank form
-#     else:
-#         return render(request,'app/enter_result.html', context)
-
-
-
-
-# @login_required(login_url='/login',redirect_field_name='')
-# def enter_result(request):
-#     if request.user.is_authenticated():
-#         try:
-
-#             context = {'player_id' : request.user.player.pk,
-#                         'login_status':request.user.player.first_name}
-#         except:
-#             context={}
-#     # if this is a POST request we need to process the form data
-#     if request.method == 'POST':
-#         data = dict(request.POST)
-#         # create a form instance and populate it with data from the request:
-#         form = MatchScoreForm(request.POST)
-
-#         # check whether it's valid:
-#         if form.is_valid():
-#             formData = form.cleaned_data
-#         #     context['result'] = form.get("first_name")
-#             user=request.user
-#             player=user.player
-#             try:            
-#             # matchHistoryByTime
-            
-#                 opponentAndrew=formData['opponent_andrew']
-#                 opponent=Player.objects.get(andrew=opponentAndrew)
-#                 winnerAndrew=formData['winner_andrew']
-#                 winner=Player.objects.get(andrew=winnerAndrew)
-
-#                 # update ranking points
-#                 selfGain=player.pointsGain(opponent,winnerAndrew)
-#                 opponentGain=opponent.pointsGain(player,winnerAndrew)
-
-#                 player.points+=selfGain
-#                 opponent.points+=opponentGain
-
-#                 matchResultForPlayer=(formData['match_date'],
-#                                         winnerAndrew,
-#                                         winner.first_name,
-#                                         opponentAndrew,
-#                                         opponent.id,
-#                                         opponent.first_name,
-#                                         opponent.last_name,
-#                                         formData['match_score'],
-#                                         selfGain,
-#                                         opponentGain,
-#                                         player.points,
-#                                         opponent.points
-#                                         )
-
-#                 matchResultForOpponent=(formData['match_date'],
-#                                         winnerAndrew,
-#                                         winner.first_name,
-#                                         player.andrew,
-#                                         player.id,
-#                                         player.first_name,
-#                                         player.last_name,
-#                                         formData['match_score'],
-#                                         opponentGain,
-#                                         selfGain,
-#                                         opponent.points,
-#                                         player.points
-#                                         )
-
-#                 # update user's match history
-#                 if player.matchHistoryByTime == "None":
-#                     allMatches=[]
-#                 else:
-#                     jsonDec = json.decoder.JSONDecoder()
-#                     allMatches = jsonDec.decode(player.matchHistoryByTime)
-
-#                 allMatches.append(matchResultForPlayer)
-
-#                 player.matchHistoryByTime=json.dumps(allMatches)
-                
-#                 # update opponent's Match History
-#                 if opponent.matchHistoryByTime == "None":
-#                     opponentMatches =[]
-#                 else:
-#                     jsonDec = json.decoder.JSONDecoder()
-#                     opponentMatches = jsonDec.decode(opponent.matchHistoryByTime)
-
-#                 opponentMatches.append(matchResultForOpponent)
-
-#                 opponent.matchHistoryByTime=json.dumps(opponentMatches)
-
-#                 # matchHistoryByOpponent
-
-#                 selfMatchInfo=(formData['match_date'],
-#                                 winnerAndrew,
-#                                 winner.first_name,
-#                                 formData['match_score'],
-#                                 selfGain,
-#                                 opponentGain,
-#                                 player.points,
-#                                 opponent.points
-#                                 )
-#                 opponentMatchInfo=(formData['match_date'],
-#                                     winnerAndrew,
-#                                     winner.first_name,
-#                                     formData['match_score'],
-#                                     opponentGain,
-#                                     selfGain,
-#                                     opponent.points,
-#                                     player.points
-#                                     )
-
-#                 # update for user
-#                 if player.matchHistoryByOpponent== "None":
-#                     matchesDict=dict()
-#                 else:
-#                     jsonDec = json.decoder.JSONDecoder()
-#                     matchesDict = jsonDec.decode(player.matchHistoryByOpponent)
-#                 if opponentAndrew in matchesDict:
-#                     matchesDict[opponentAndrew].append(selfMatchInfo)
-#                 else:
-#                     matchesDict[opponentAndrew]=[selfMatchInfo]
-#                 player.matchHistoryByOpponent=json.dumps(matchesDict)
-
-#                 # update for user's opponent
-#                 if opponent.matchHistoryByOpponent== "None":
-#                     opponentDict=dict()
-#                 else:
-#                     jsonDec = json.decoder.JSONDecoder()
-#                     opponentDict = jsonDec.decode(opponent.matchHistoryByOpponent)
-#                 if player.andrew in opponentDict:
-#                     opponentDict[player.andrew].append(opponentMatchInfo)
-#                 else:
-                    
-#                     opponentDict[player.andrew]=[opponentMatchInfo]
-#                 opponent.matchHistoryByOpponent=json.dumps(opponentDict)
-
-
-#                 user.player.save()
-#                 opponent.save()
-                
-                
-#                 return redirect('/match_history/{}'.format(user.player.pk))
-#                 # return render(request,'app/profile.html', context)
-#             except:
-#                 context['result'] = 'Plase make sure you fill in the form correctly.'
-
-#         else:
-#             context['result'] = 'Plase make sure you fill in the form correctly.'
-#         return render(request,'app/enter_result.html', context)
-
-#     # if a GET (or any other method) we'll create a blank form
-#     else:
-#         return render(request,'app/enter_result.html', context)
 
 @login_required(login_url='/login',redirect_field_name='')
 def match_history(request,player_id):
@@ -604,7 +441,6 @@ def match_history(request,player_id):
             context['recentMatches']=len(recentMatches)
             context['confidence_factor']=confidenceFactor
         
-
     except Player.DoesNotExist:
         raise Http404("Player does not exist")
     return render (request, 'app/match_history.html',context)
@@ -643,7 +479,6 @@ def match_history_opponent(request,player_id,opponent_id):
             else:
                 context['recent_percent']=int(100*(player.findPercentageOfWins(recent_matches)))
             context['matches']=matches
-            print(player.getConfidenceFactorAgainstOpponent(opponent))
             context['confidence_factor_against']=player.getConfidenceFactorAgainstOpponent(opponent)
         
     except Player.DoesNotExist:
@@ -651,6 +486,7 @@ def match_history_opponent(request,player_id,opponent_id):
     return render (request, 'app/match_history_opponent.html',context)
 
 @login_required(login_url='/login',redirect_field_name='')
+# find a partner page
 def partner(request):
     context={}
     if request.user.is_authenticated():
@@ -660,11 +496,10 @@ def partner(request):
                         'login_status':request.user.player.first_name}
         except:
             context={}
-    # context={'player_id': request.user.player.pk}
 
     return render(request,'app/partner.html', context)
 
-# http://stackoverflow.com/questions/1110153/what-is-the-most-efficent-way-to-store-a-list-in-the-django-models
+# some ideas used here adapted from http://stackoverflow.com/questions/1110153/what-is-the-most-efficent-way-to-store-a-list-in-the-django-models
 def signup(request):
     context={'result':""}
     # if this is a POST request we need to process the form data
@@ -676,7 +511,6 @@ def signup(request):
         # check whether it's valid:
         if form.is_valid():
             formData = form.cleaned_data
-        #     context['result'] = form.get("first_name")
             user=request.user
             user.player=Player(user=request.user,
                 first_name=formData['first_name'],
@@ -688,21 +522,11 @@ def signup(request):
                 level=formData['level'],
                 frequency=formData['frequency'],
                 times=json.dumps(data['times']))
-            # player.first_name=data['first_name'][0]
-            # player.last_name=data['last_name'][0]
-            # player.gender=data['gender'][0]
-            # player.andrew=data['andrew'][0]
-            # player.phone=data['phone'][0]
-            # player.email=data['email'][0]
-            # player.level=data['level'][0]
-            # player.frequency=data['frequency'][0]
-            # player.times=json.dumps(data['times'])
 
             user.player.save()
             
             context['result'] = data['first_name'][0]
             return redirect('/user/{}'.format(user.player.pk))
-            # return render(request,'app/profile.html', context)
 
         else:
             context['result'] = 'Plase make sure you fill in the form correctly.'
@@ -723,7 +547,6 @@ def updateProfile(request):
         except:
             context={}
 
-    # context={'player_id':request.user.player.id}
     if request.method == 'POST':
         data = dict(request.POST)
         # create a form instance and populate it with data from the request:
@@ -744,22 +567,11 @@ def updateProfile(request):
             player.frequency=formData['frequency']
             player.times=json.dumps(data['times'])
 
-            # player.first_name=data['first_name'][0]
-            # player.last_name=data['last_name'][0]
-            # player.gender=data['gender'][0]
-            # player.andrew=data['andrew'][0]
-            # player.phone=data['phone'][0]
-            # player.email=data['email'][0]
-            # player.level=data['level'][0]
-            # player.frequency=data['frequency'][0]
-            # player.times=json.dumps(data['times'])
-
             player.save()
             
             context['result'] = data['first_name'][0]
             
             return redirect('/user/{}'.format(user.player.pk))
-            # return render(request,'app/profile.html', context)
 
         else:
             context['result'] = 'Please make sure you fill in everything correctly'
@@ -767,11 +579,9 @@ def updateProfile(request):
     return render(request,'app/updateProfile.html', context)
 
 @login_required(login_url='/login',redirect_field_name='')
+# manual match
 def filter(request):
     context={}
-    # def processForm(data):
-    #     if (data.get('times')) is not None:
-    #         data.times = repr(data['times'])
     if request.user.is_authenticated():
         try:
 
@@ -779,24 +589,9 @@ def filter(request):
                         'login_status':request.user.player.first_name}
         except:
             context={}
-    # context= {'player_id': request.user.player.pk}
+
     return render(request,'app/filter.html', context)
 
-# @login_required(login_url='/login',redirect_field_name='')
-# def autoMatch(request):
-#     context={}
-#     # def processForm(data):
-#     #     if (data.get('times')) is not None:
-#     #         data.times = repr(data['times'])
-#     if request.user.is_authenticated():
-#         try:
-
-#             context = {'player_id' : request.user.player.pk,
-#                         'login_status':request.user.player.first_name}
-#         except:
-#             context={}
-#     # context= {'player_id': request.user.player.pk}
-#     return render(request,'app/match_result.html', context) 
 
 @login_required(login_url='/login',redirect_field_name='')
 def match_result(request):
@@ -818,13 +613,11 @@ def match_result(request):
 
         # create a form instance and populate it with data from the request:
         form = RequirementsForm(request.POST)
-        # TODO: might want to copy the data
 
         # check whether it's valid:
         if form.is_valid():
             formData = form.cleaned_data
 
-        #     context['result'] = form.get("first_name")
             req=Requirements(gender=formData['gender'],
                 gender_importance=formData['gender_importance'],
                 min_level=formData['min_level'],
@@ -835,33 +628,18 @@ def match_result(request):
                 times=json.dumps(data['times']),
                 times_importance=formData['times_importance'])
 
-            # req.gender=formData['gender']
-            # req.gender_importance=formData['gender_importance']
-            # req.min_level=formData['min_level']
-            # req.max_level=formData['max_level']
-            # req.level_importance=formData['level_importance']
-            # req.frequency=formData['frequency']
-            # req.frequency_importance=formData['frequency_importance']
-
-            # req.times=json.dumps(data['times'])
-            # req.times_importance=formData['times_importance'][0]
-
-
 
             allPlayers=Player.objects.all()
             matchesFound,partners=req.rankByScore(allPlayers,curPlayer)
             context['matchesFound']=matchesFound
             context['partners']=partners
-           
 
-            # context['result'] = data['gender'][0]
             
             return render(request,'app/match_result.html', context)
 
         else:
             context['result'] = 'Please make sure you fill in the form correctly.'
-        # fix this
-        return render(request,'app/filter.html', context)
+            return redirect('filter')
 
     # if a GET (or any other method) we'll create a blank form
     else:
@@ -875,43 +653,23 @@ def match_result(request):
             return render(request,'app/match_result.html', context)
         else: return redirect('login')
 
-        # fix this
-        # return render(request,'app/filter.html', context)
 
 
-    # print(dict(request.POST))
-    # allPlayers=Player.objects.all()
-    # partners=req.rankByScore(allPlayers)
-
-    # context={
-    #     "partners": partners
-    # }
-
-    # return render(request,'app/match_result.html', context)
-
-
-
-
-# Youtube
+# From tutorial: https://www.youtube.com/watch?v=3UEY0ZIQ9dU&index=34&list=PL6gx4Cwl9DGBlmzzFcLgDhKTTfNLfX1IK
 @login_required(login_url='/login',redirect_field_name='')
 def profile(request,player_id):
     context={}
     if request.user.is_authenticated():
         try:
-
-
             context = {'login_status':request.user.player.first_name}
 
         except:
-
             context={}
-
     try:
         player=Player.objects.get(pk=player_id)
         if request.user.player==player:
 
             context['allowUpdate']=True
-
         
         context['player']=player
         context['player_id']=request.user.player.pk
@@ -921,26 +679,12 @@ def profile(request,player_id):
         context['preferred_times']=timesSet
         
         
-    
     except Player.DoesNotExist:
         raise Http404("Player does not exist")
     return render (request, 'app/profile.html',context)
 
-# class PlayerProfileDetail(generic.DetailView):
-#     model=Player
-#     template_name='app/profile.html'
-#     fields=('first_name','last_name','gender','andrew','email','phone','level','frequency',
-#         'time')
-# class PlayerProfileUpdate(UpdateView):
-#     model=Player
-#     fields=('first_name','last_name','gender','andrew','email','phone','level','frequency',
-#         'time')
 
-# class PlayerCreate(CreateView):
-#     model=Player
-#     fields=['andrew','first_name','last_name','gender','frequency']
-
-# youtube tutorial
+# From youtube tutorial: https://www.youtube.com/watch?v=eMGtdtNR4es&list=PL6gx4Cwl9DGBlmzzFcLgDhKTTfNLfX1IK&index=36
 class UserFormView(View):
     form_class=UserForm
     template_name='app/registration_form.html'
@@ -972,6 +716,7 @@ class UserFormView(View):
         return render(request,self.template_name,{'form':form})
 
 # from django documentation
+# https://docs.djangoproject.com/en/1.10/
 def login(request):
     
     context={'result':None}
@@ -983,9 +728,7 @@ def login(request):
         # Redirect to a success page.
         context={'login_status':username}
         return redirect('index')
-        
-        # return render(request, 'app/index.html', context)
-        
+                
     else:
         context['result']="Invalid log in. Please try again."
         return render(request, 'app/login.html', context)
@@ -995,4 +738,3 @@ def login(request):
 def logout(request):
     auth_logout(request)
     return redirect('index')
-    # return render(request, 'app/logout.html', context)

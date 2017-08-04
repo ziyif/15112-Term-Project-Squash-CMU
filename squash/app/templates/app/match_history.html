@@ -1,5 +1,7 @@
 {% extends 'app/base.html' %}
 
+<!-- table template adapted from http://materializecss.com/table.html -->
+<!-- Cards tempalte adapted from http://materializecss.com/cards.html -->
 
 {% block title %}Match History{% endblock %}
 
@@ -21,16 +23,14 @@
             <li> Total Matches: {{totalMatches}}</li>
             <li> Total Matches Won: {{numOfWins}}</li>
             <li> Matches played in the last 3 months: {{recentMatches}}</li>
-            <!-- <li>* Confidence Factor: {{confidence_factor}}</li> -->
+
           </div>
-          <!-- <div class="card-action">
-            <a href="#">This is a link</a>
-            <a href="#">This is a link</a> -->
+
         </div>
       </div>
     </div>
 
-    <p class="blue-text text-darken-2"> *Confidence Factor is calculated based on recent activity and match results. Maximum is 100.</p>
+    <p class="blue-text text-darken-2"> *Confidence Factor is calculated based on recent activeness and match results. Maximum is 100.</p>
 
 
     <table class="centered">
@@ -68,20 +68,6 @@
 
       </tbody>
     </table>
-
-<!--     <ul>
-        {% for a,b,c,d,e,f,g,h,i,j,k,l in matches %}
-          <li>Date: {{a}} </li>
-          <li>Against: <a href="/match_history_opponent/{{player.id}}/{{e}}">
-            {{f}} {{g}}</a> </li>
-          <li>Winner: {{c}}({{b}})</li>
-          <li>Score: {{h}}</li>
-          <li>Points Gained: {{i}}</li>  
-          <li>Opponent's Points Gained: {{j}} </li>
-          <li>Your Points after Match: {{k}}</li>
-          <li>Opponent's Points After Match: {{l}}</li>
-        {% endfor %}
-    </ul> -->
 
 
 
